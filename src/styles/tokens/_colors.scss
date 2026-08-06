@@ -1,0 +1,97 @@
+// Alicerce Premium Design System — Color Tokens & Gradients
+
+// Deep Luxury Palettes
+$color-bordo-deep:     #1d090d;
+$color-bordo-dark:     #2c0c13;
+$color-bordo-main:     #4a121a;
+$color-bordo-medium:   #6b1b27;
+$color-bordo-vibrant:  #922638;
+$color-bordo-light:    #c43c52;
+
+$color-champagne-dark:  #8f7039;
+$color-champagne-main:  #d8b87e;
+$color-champagne-light: #ebd9b6;
+$color-champagne-glow:  #fdf4e3;
+
+$color-dark-bg:       #12080a;
+$color-dark-card:     #1e0e12;
+$color-dark-surface:  #291319;
+$color-dark-elevated: #361a22;
+
+$color-light-bg:      #fdfbf7;
+$color-light-card:    #ffffff;
+$color-light-surface: #f5efe6;
+
+:root {
+  // Brand Base
+  --color-primary: #5c1622;
+  --color-primary-gradient: linear-gradient(135deg, #6b1b27 0%, #3a0d14 100%);
+  --color-bordo-glow: linear-gradient(135deg, rgba(146, 38, 56, 0.3) 0%, rgba(58, 13, 20, 0.1) 100%);
+  
+  --color-champagne: #d8b87e;
+  --color-champagne-light: #ebd9b6;
+  --color-gold-gradient: linear-gradient(135deg, #ebd9b6 0%, #d8b87e 50%, #9e7d44 100%);
+  --color-gold-glow: 0 4px 25px rgba(216, 184, 126, 0.28);
+  --color-bordo-shadow: 0 8px 32px rgba(74, 18, 26, 0.35);
+
+  // Alic-Prefixed Tokens
+  --alic-color-vinho-deep: #18070a;
+  --alic-color-vinho-mid: #2c0c13;
+  --alic-color-bordo-main: #4a121a;
+  --alic-color-bordo-light: #922638;
+  
+  --alic-color-gold-light: #ebd9b6;
+  --alic-color-gold-main: #d8b87e;
+  --alic-color-gold-dark: #9e7d44;
+  --alic-color-gold-gradient: linear-gradient(135deg, #ebd9b6 0%, #d8b87e 50%, #9e7d44 100%);
+  --alic-color-primary-gradient: linear-gradient(135deg, #4a121a 0%, #922638 100%);
+  
+  --alic-color-bg-dark: #120709;
+  --alic-color-bg-card: rgba(28, 12, 16, 0.75);
+  --alic-color-border-glass: 1px solid rgba(216, 184, 126, 0.25);
+
+  // Light Mode Defaults
+  --color-bg-page: #faf6f0;
+  --color-bg-card: rgba(255, 255, 255, 0.9);
+  --color-bg-glass: rgba(255, 255, 255, 0.75);
+  --color-bg-surface: #f2e9dc;
+  --color-bg-header: linear-gradient(90deg, #3d0d14 0%, #581621 50%, #2e090e 100%);
+  
+  --color-text-primary: #241619;
+  --color-text-secondary: #635054;
+  --color-text-tertiary: #948286;
+  --color-text-gold: #b38b46;
+
+  --color-border-glass: rgba(216, 184, 126, 0.25);
+  --color-border-subtle: rgba(216, 184, 126, 0.15);
+
+  --color-positive: #10b981;
+  --color-positive-bg: rgba(16, 185, 129, 0.12);
+  --color-negative: #f43f5e;
+  --color-negative-bg: rgba(244, 63, 94, 0.12);
+}
+
+// Ultra-Rich Dark Mode
+[data-theme="dark"], body.dark-theme {
+  --color-primary: #c43c52;
+  --color-primary-gradient: linear-gradient(135deg, #4a121a 0%, #22080d 100%);
+  
+  --color-bg-page: #120709;
+  --color-bg-card: rgba(33, 14, 19, 0.75);
+  --color-bg-glass: rgba(28, 12, 16, 0.65);
+  --color-bg-surface: rgba(48, 20, 27, 0.6);
+  --color-bg-header: linear-gradient(90deg, #18070a 0%, #2c0c13 50%, #150608 100%);
+  
+  --color-text-primary: #fbf5eb;
+  --color-text-secondary: #d6c8b4;
+  --color-text-tertiary: #9c8e7c;
+  --color-text-gold: #ebd9b6;
+
+  --color-border-glass: rgba(216, 184, 126, 0.22);
+  --color-border-subtle: rgba(216, 184, 126, 0.12);
+
+  --color-positive: #34d399;
+  --color-positive-bg: rgba(52, 211, 153, 0.15);
+  --color-negative: #fb7185;
+  --color-negative-bg: rgba(251, 113, 133, 0.15);
+}

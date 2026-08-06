@@ -1,0 +1,54 @@
+// Alicerce Custom Theme Overrides
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Angular Material Overrides
+.mat-mdc-card {
+  background-color: var(--color-bg-card) !important;
+  color: var(--color-text-primary) !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+  box-shadow: var(--shadow-sm) !important;
+
+  &:hover {
+    box-shadow: var(--shadow-md) !important;
+  }
+}
+
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button {
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-primary) !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0.3px !important;
+}
+
+.btn-primary {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  
+  &:hover {
+    background-color: var(--color-primary-light) !important;
+  }
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary) !important;
+  color: #1f1a17 !important;
+
+  &:hover {
+    background-color: var(--color-secondary-light) !important;
+  }
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}

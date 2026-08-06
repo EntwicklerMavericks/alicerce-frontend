@@ -1,0 +1,12 @@
+// Alicerce Design Tokens — Breakpoints
+:root {
+  --alic-breakpoint-mobile: 480px;
+  --alic-breakpoint-tablet: 768px;
+  --alic-breakpoint-desktop: 1024px;
+  --alic-breakpoint-xl: 1280px;
+}
+
+$breakpoint-mobile: 480px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+$breakpoint-xl: 1280px;

@@ -1,0 +1,87 @@
+// Alicerce Luxury Design System — Variables & Animations
+
+$font-family-primary: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-family-secondary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+$font-family-mono: 'Space Grotesk', 'Courier New', monospace;
+
+:root {
+  --font-primary: #{$font-family-primary};
+  --font-secondary: #{$font-family-secondary};
+  --font-mono: #{$font-family-mono};
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  --glass-blur: blur(16px);
+  --glass-border: 1px solid var(--color-border-glass);
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.22);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --shadow-gold-glow: 0 0 25px rgba(216, 184, 126, 0.3);
+  --shadow-bordo-glow: 0 8px 30px rgba(74, 18, 26, 0.45);
+
+  /* Mobile First & Safe Areas (Dynamic Island / Notch / Gesture Bar / Status Bar) */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+
+  --min-touch-target: 44px;
+}
+
+/* Touch & Mobile Active Interactions */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-active:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+// Glassmorphism Utility Classes & Keyframe Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGold {
+  0% { box-shadow: 0 0 0 0 rgba(216, 184, 126, 0.5); }
+  70% { box-shadow: 0 0 0 14px rgba(216, 184, 126, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(216, 184, 126, 0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glass-card {
+  background: var(--color-bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--color-border-glass);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg), var(--shadow-gold-glow);
+    border-color: rgba(216, 184, 126, 0.4);
+  }
+}

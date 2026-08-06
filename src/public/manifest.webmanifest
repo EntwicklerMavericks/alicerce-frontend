@@ -1,0 +1,20 @@
+{
+  "name": "Alicerce — Finanças Baseadas em Objetivos",
+  "short_name": "Alicerce",
+  "theme_color": "#18070a",
+  "background_color": "#120709",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "id": "com.alicerce.app",
+  "description": "Aplicativo de Gestão Financeira Pessoal baseada em Metas e Projetos",
+  "icons": [
+    {
+      "src": "/branding/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
