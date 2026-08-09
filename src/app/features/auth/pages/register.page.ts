@@ -96,11 +96,11 @@ import { InputComponent } from '../../../shared/components/input/input.component
         font-size: 20px;
         font-weight: 700;
         margin: 0;
-        color: var(--color-text-primary);
+        color: #fbf5eb;
       }
       p {
         font-size: 13px;
-        color: var(--color-text-tertiary);
+        color: #d6c8b4;
         margin: 4px 0 0 0;
       }
     }
@@ -112,7 +112,7 @@ import { InputComponent } from '../../../shared/components/input/input.component
       padding: 12px 16px;
       border-radius: var(--radius-md);
       background: rgba(244, 63, 94, 0.15);
-      border: 1px solid rgba(244, 63, 94, 0.3);
+      border: 1px solid rgba(244, 63, 94, 0.35);
       color: #fb7185;
       font-size: 13px;
       font-weight: 600;
@@ -123,7 +123,7 @@ import { InputComponent } from '../../../shared/components/input/input.component
     .register-form {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
 
     .onboarding-notice {
@@ -132,13 +132,13 @@ import { InputComponent } from '../../../shared/components/input/input.component
       gap: 10px;
       padding: 12px 14px;
       border-radius: var(--radius-md);
-      background: rgba(216, 184, 126, 0.1);
-      border: 1px solid rgba(216, 184, 126, 0.25);
-      color: var(--color-champagne-light);
+      background: rgba(216, 184, 126, 0.12);
+      border: 1px solid rgba(216, 184, 126, 0.3);
+      color: #ebd9b6;
       font-size: 12px;
 
       span.material-symbols-rounded {
-        color: var(--color-champagne-main);
+        color: #d8b87e;
         font-size: 20px;
       }
     }
@@ -148,16 +148,20 @@ import { InputComponent } from '../../../shared/components/input/input.component
       justify-content: center;
       gap: 6px;
       font-size: 13px;
-      color: var(--color-text-secondary);
-      border-top: 1px solid var(--color-border-subtle);
-      padding-top: 16px;
+      color: #d6c8b4;
+      border-top: 1px solid rgba(216, 184, 126, 0.2);
+      padding-top: 18px;
     }
 
     .link-gold {
-      color: var(--color-champagne-main);
+      color: #ebd9b6;
       font-weight: 700;
       text-decoration: none;
-      &:hover { text-decoration: underline; }
+      transition: all 0.2s ease;
+      &:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
     }
   `],
 })

@@ -36,8 +36,8 @@ import { RouterOutlet } from '@angular/router';
       padding: 24px;
       background: #120709;
       background-image: 
-        radial-gradient(circle at 50% 20%, rgba(146, 38, 56, 0.4) 0%, transparent 60%),
-        radial-gradient(circle at 80% 80%, rgba(216, 184, 126, 0.25) 0%, transparent 50%);
+        radial-gradient(circle at 50% 20%, rgba(146, 38, 56, 0.45) 0%, transparent 65%),
+        radial-gradient(circle at 80% 80%, rgba(216, 184, 126, 0.3) 0%, transparent 55%);
       overflow-y: auto;
     }
 
@@ -48,8 +48,12 @@ import { RouterOutlet } from '@angular/router';
       display: flex;
       flex-direction: column;
       gap: 28px;
-      border: 1px solid rgba(216, 184, 126, 0.35);
-      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(216, 184, 126, 0.2);
+      background: linear-gradient(145deg, rgba(32, 11, 16, 0.94) 0%, rgba(20, 7, 10, 0.96) 100%) !important;
+      backdrop-filter: blur(24px) !important;
+      -webkit-backdrop-filter: blur(24px) !important;
+      border-radius: var(--radius-lg) !important;
+      border: 1px solid rgba(216, 184, 126, 0.35) !important;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(216, 184, 126, 0.15) !important;
     }
 
     .auth-header {
@@ -63,12 +67,12 @@ import { RouterOutlet } from '@angular/router';
       width: 56px;
       height: 56px;
       border-radius: var(--radius-md);
-      background: var(--color-gold-gradient);
+      background: linear-gradient(135deg, #ebd9b6 0%, #d8b87e 50%, #9e7d44 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: var(--shadow-gold-glow);
-      margin-bottom: 12px;
+      box-shadow: 0 0 25px rgba(216, 184, 126, 0.4);
+      margin-bottom: 14px;
     }
 
     .logo-icon {
@@ -80,19 +84,22 @@ import { RouterOutlet } from '@angular/router';
       font-family: var(--font-primary);
       font-size: 26px;
       font-weight: 800;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       margin: 0;
-      background: linear-gradient(135deg, #ebd9b6 0%, #d8b87e 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #ebd9b6 40%, #d8b87e 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
     }
 
     .auth-subtitle {
       font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: rgba(235, 217, 182, 0.7);
-      margin-top: 4px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      color: #d8b87e;
+      margin-top: 6px;
+      opacity: 0.95;
+      text-shadow: 0 0 10px rgba(216, 184, 126, 0.3);
     }
   `],
 })

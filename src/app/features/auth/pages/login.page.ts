@@ -83,11 +83,11 @@ import { InputComponent } from '../../../shared/components/input/input.component
         font-size: 20px;
         font-weight: 700;
         margin: 0;
-        color: var(--color-text-primary);
+        color: #fbf5eb;
       }
       p {
         font-size: 13px;
-        color: var(--color-text-tertiary);
+        color: #d6c8b4;
         margin: 4px 0 0 0;
       }
     }
@@ -99,7 +99,7 @@ import { InputComponent } from '../../../shared/components/input/input.component
       padding: 12px 16px;
       border-radius: var(--radius-md);
       background: rgba(244, 63, 94, 0.15);
-      border: 1px solid rgba(244, 63, 94, 0.3);
+      border: 1px solid rgba(244, 63, 94, 0.35);
       color: #fb7185;
       font-size: 13px;
       font-weight: 600;
@@ -110,7 +110,7 @@ import { InputComponent } from '../../../shared/components/input/input.component
     .login-form {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
 
     .form-options {
@@ -119,11 +119,17 @@ import { InputComponent } from '../../../shared/components/input/input.component
     }
 
     .forgot-link {
-      font-size: 12px;
-      color: var(--color-champagne-main);
+      font-size: 13px;
+      color: #d8b87e;
       cursor: pointer;
       font-weight: 600;
-      &:hover { text-decoration: underline; }
+      text-decoration: none;
+      transition: all 0.2s ease;
+      &:hover {
+        color: #ebd9b6;
+        text-decoration: underline;
+        text-shadow: 0 0 8px rgba(216, 184, 126, 0.4);
+      }
     }
 
     .form-footer {
@@ -131,16 +137,20 @@ import { InputComponent } from '../../../shared/components/input/input.component
       justify-content: center;
       gap: 6px;
       font-size: 13px;
-      color: var(--color-text-secondary);
-      border-top: 1px solid var(--color-border-subtle);
-      padding-top: 16px;
+      color: #d6c8b4;
+      border-top: 1px solid rgba(216, 184, 126, 0.2);
+      padding-top: 18px;
     }
 
     .link-gold {
-      color: var(--color-champagne-main);
+      color: #ebd9b6;
       font-weight: 700;
       text-decoration: none;
-      &:hover { text-decoration: underline; }
+      transition: all 0.2s ease;
+      &:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
     }
   `],
 })

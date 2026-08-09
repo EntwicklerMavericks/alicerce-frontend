@@ -39,7 +39,11 @@ export const routes: Routes = [
       },
       {
         path: 'transactions',
-        loadComponent: () => import('./features/carteiras/pages/carteiras.page').then(m => m.CarteirasPage),
+        loadComponent: () => import('./features/lancamentos/pages/lancamentos.page').then(m => m.LancamentosPage),
+      },
+      {
+        path: 'cards',
+        loadComponent: () => import('./features/cartoes/pages/cartoes.page').then(m => m.CartoesPage),
       },
       {
         path: 'calendar',
@@ -47,7 +51,47 @@ export const routes: Routes = [
       },
       {
         path: 'goals',
-        loadComponent: () => import('./features/dashboard/pages/dashboard.page').then(m => m.DashboardPage),
+        loadComponent: () => import('./features/metas/pages/metas.page').then(m => m.MetasPage),
+      },
+      {
+        path: 'orcamentos',
+        loadComponent: () => import('./features/orcamentos/pages/orcamentos.page').then(m => m.OrcamentosPage),
+      },
+      {
+        path: 'products',
+        loadComponent: () => import('./features/produtos/pages/produtos.page').then(m => m.ProdutosPage),
+      },
+      {
+        path: 'products/:id',
+        loadComponent: () => import('./features/produtos/pages/produto-detail.page').then(m => m.ProdutoDetailPage),
+      },
+      {
+        path: 'wishlist',
+        loadComponent: () => import('./features/wishlist/pages/wishlist.page').then(m => m.WishlistPage),
+      },
+      {
+        path: 'projects',
+        loadComponent: () => import('./features/projetos/pages/projetos.page').then(m => m.ProjetosPage),
+      },
+      {
+        path: 'projects/:id',
+        loadComponent: () => import('./features/projetos/pages/projeto-detail.page').then(m => m.ProjetoDetailPage),
+      },
+      {
+        path: 'planning/overview',
+        loadComponent: () => import('./features/planning/pages/planning-overview.page').then(m => m.PlanningOverviewPage),
+      },
+      {
+        path: 'planning',
+        loadComponent: () => import('./features/planning/pages/timeline.page').then(m => m.TimelinePage),
+      },
+      {
+        path: 'alertas',
+        loadComponent: () => import('./features/alertas/pages/alertas.page').then(m => m.AlertasPage),
+      },
+      {
+        path: 'relatorios',
+        loadComponent: () => import('./features/relatorios/pages/relatorios.page').then(m => m.RelatoriosPage),
       },
       {
         path: 'menu',

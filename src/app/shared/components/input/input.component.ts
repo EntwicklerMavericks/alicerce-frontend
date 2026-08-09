@@ -66,44 +66,46 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
     .input-label {
       font-size: 13px;
       font-weight: 600;
-      color: var(--color-text-secondary);
+      color: #ebd9b6;
     }
 
     .required-star {
-      color: var(--color-negative);
+      color: #fb7185;
     }
 
     .input-container {
       position: relative;
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--color-border-subtle);
+      background: rgba(18, 7, 9, 0.65);
+      border: 1px solid rgba(216, 184, 126, 0.25);
       border-radius: var(--radius-md);
+      overflow: hidden;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
-        border-color: rgba(216, 184, 126, 0.35);
+        border-color: rgba(216, 184, 126, 0.5);
       }
     }
 
     .focused .input-container {
-      border-color: var(--color-champagne-main);
-      box-shadow: 0 0 15px rgba(216, 184, 126, 0.2);
-      background: rgba(255, 255, 255, 0.08);
+      border-color: #d8b87e;
+      box-shadow: 0 0 15px rgba(216, 184, 126, 0.25);
+      background: rgba(26, 10, 14, 0.85);
     }
 
     .has-error .input-container {
-      border-color: var(--color-negative) !important;
-      box-shadow: 0 0 12px rgba(244, 63, 94, 0.2) !important;
+      border-color: #fb7185 !important;
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.25) !important;
     }
 
     .leading-icon {
       position: absolute;
       left: 14px;
-      color: var(--color-text-tertiary);
+      color: #d8b87e;
       font-size: 20px;
       pointer-events: none;
+      z-index: 2;
     }
 
     .input-field {
@@ -114,10 +116,23 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
       padding: 12px 16px;
       font-family: var(--font-primary);
       font-size: 14px;
-      color: var(--color-text-primary);
+      color: #fbf5eb;
+      border-radius: inherit;
 
       &::placeholder {
-        color: var(--color-text-tertiary);
+        color: rgba(214, 200, 180, 0.45);
+      }
+
+      /* Fix para autofill do Chrome/Edge com fundo feio lavanda/azul mantendo a borda arredondada */
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover, 
+      &:-webkit-autofill:focus, 
+      &:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px #1a0a0f inset !important;
+        -webkit-text-fill-color: #fbf5eb !important;
+        caret-color: #fbf5eb;
+        transition: background-color 5000s ease-in-out 0s;
+        border-radius: inherit !important;
       }
     }
 
@@ -128,7 +143,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
     .toggle-password-btn {
       background: none;
       border: none;
-      color: var(--color-text-tertiary);
+      color: #d8b87e;
       cursor: pointer;
       padding: 8px 12px;
       display: flex;
@@ -136,7 +151,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
       justify-content: center;
 
       &:hover {
-        color: var(--color-text-primary);
+        color: #ebd9b6;
       }
 
       span { font-size: 20px; }
@@ -144,13 +159,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
 
     .error-msg {
       font-size: 11px;
-      color: var(--color-negative);
+      color: #fb7185;
       font-weight: 600;
     }
 
     .hint-msg {
       font-size: 11px;
-      color: var(--color-text-tertiary);
+      color: rgba(214, 200, 180, 0.6);
     }
   `],
 })

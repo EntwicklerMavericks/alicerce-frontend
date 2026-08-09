@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HapticsService } from '../../../core/platform/haptics.service';
+import { RadialMenuComponent } from '../radial-menu/radial-menu.component';
 
 @Component({
   selector: 'app-bottom-navigation',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RadialMenuComponent],
   template: `
     <nav class="bottom-nav">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
@@ -19,6 +20,9 @@ import { HapticsService } from '../../../core/platform/haptics.service';
         <span class="nav-label">Lançamentos</span>
       </a>
 
+      <!-- Botão Central Radial Rotativo Semicircular -->
+      <app-radial-menu></app-radial-menu>
+
       <a routerLink="/calendar" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
         <span class="material-symbols-rounded nav-icon">calendar_month</span>
         <span class="nav-label">Calendário</span>
@@ -27,11 +31,6 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       <a routerLink="/goals" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
         <span class="material-symbols-rounded nav-icon">flag</span>
         <span class="nav-label">Metas</span>
-      </a>
-
-      <a routerLink="/menu" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
-        <span class="material-symbols-rounded nav-icon">menu</span>
-        <span class="nav-label">Menu</span>
       </a>
     </nav>
   `,

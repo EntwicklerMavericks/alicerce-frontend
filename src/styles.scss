@@ -14,14 +14,25 @@
 
 html, body {
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: var(--alic-font-family-primary);
   background-color: var(--alic-color-bg-dark);
   color: #ffffff;
+  overflow: hidden;
+  position: fixed;
+  -webkit-tap-highlight-color: transparent;
 }
 
 *, *:before, *:after {
   box-sizing: inherit;
+  max-width: 100%;
+}
+
+/* Utilitário global para evitar estouro de texto e overflow-x */
+img, svg, video, canvas, audio, iframe {
+  max-width: 100%;
+  height: auto;
 }

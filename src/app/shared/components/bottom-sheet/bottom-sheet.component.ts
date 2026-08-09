@@ -56,6 +56,9 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      width: 100%;
     }
 
     .drag-handle-wrapper {
@@ -99,6 +102,9 @@ import { HapticsService } from '../../../core/platform/haptics.service';
     .sheet-body {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
+      width: 100%;
+      box-sizing: border-box;
     }
   `],
 })
