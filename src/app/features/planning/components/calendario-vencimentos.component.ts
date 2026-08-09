@@ -430,12 +430,15 @@ import { CalendarioVencimento, VencimentoStatus, VencimentoTipo } from '../../..
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(216, 184, 126, 0.15);
       border-radius: 12px;
-      padding: 14px;
+      padding: 10px 12px;
       display: grid;
-      grid-template-columns: 60px 1fr auto;
-      gap: 16px;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      gap: 10px;
       align-items: center;
       transition: all 0.2s ease;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
 
       &:hover {
         background: rgba(255, 255, 255, 0.06);
@@ -465,18 +468,19 @@ import { CalendarioVencimento, VencimentoStatus, VencimentoTipo } from '../../..
       background: rgba(201, 167, 78, 0.15);
       border: 1px solid rgba(201, 167, 78, 0.3);
       border-radius: 10px;
-      padding: 6px;
+      padding: 4px 2px;
+      min-width: 0;
 
       .day-num {
         font-family: var(--font-mono, 'Space Grotesk', monospace);
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 800;
         color: #C9A74E;
         line-height: 1;
       }
 
       .date-sub {
-        font-size: 10px;
+        font-size: 9px;
         color: #9c8e7c;
       }
     }
@@ -484,72 +488,87 @@ import { CalendarioVencimento, VencimentoStatus, VencimentoTipo } from '../../..
     .item-info-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .item-title-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      min-width: 0;
       flex-wrap: wrap;
     }
 
     .item-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .type-pill {
-      font-size: 10px;
+      font-size: 8px;
       font-weight: 800;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 4px;
       text-transform: uppercase;
-      background: rgba(255, 255, 255, 0.1);
-      color: #9c8e7c;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
 
-      &.fatura { background: rgba(225, 29, 72, 0.2); color: #f43f5e; }
-      &.despesa_fixa { background: rgba(161, 61, 99, 0.2); color: #ebd9b6; }
-      &.parcela { background: rgba(201, 167, 78, 0.2); color: #C9A74E; }
-      &.boleto { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-      &.recorrencia { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+      &.fatura { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+      &.despesa_fixa { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+      &.parcela { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+      &.boleto { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+      &.recorrencia { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
     }
 
     .item-metadata {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 4px;
       flex-wrap: wrap;
+      min-width: 0;
     }
 
     .meta-chip {
-      display: inline-flex;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.6);
+      display: flex;
       align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      color: #9c8e7c;
+      gap: 2px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px;
 
-      span { font-size: 14px; }
-      &.gold { color: #C9A74E; }
+      span { font-size: 11px; flex-shrink: 0; }
+      &.gold { color: #C9A74E; background: rgba(201, 167, 78, 0.1); }
     }
 
     .item-value-action {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 6px;
+      gap: 4px;
+      flex-shrink: 0;
     }
 
     .amount-display {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 800;
       color: #ffffff;
+      white-space: nowrap;
 
-      &.line-through {
-        text-decoration: line-through;
-        color: #9c8e7c;
-      }
+      &.line-through { text-decoration: line-through; opacity: 0.5; }
     }
 
     .status-action-wrapper {

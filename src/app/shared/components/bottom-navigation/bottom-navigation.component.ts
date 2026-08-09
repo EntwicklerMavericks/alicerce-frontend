@@ -42,17 +42,18 @@ import { RadialMenuComponent } from '../radial-menu/radial-menu.component';
       right: 0;
       height: calc(60px + var(--sab));
       padding-bottom: var(--sab);
-      background: rgba(24, 7, 10, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid rgba(216, 184, 126, 0.25);
+      background: #18070A;
+      border-top: 1px solid rgba(216, 184, 126, 0.3);
       display: flex;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
       z-index: 100;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .nav-item {
+      flex: 1 1 0px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -62,9 +63,11 @@ import { RadialMenuComponent } from '../radial-menu/radial-menu.component';
       text-decoration: none;
       font-size: 10px;
       font-weight: 600;
-      padding: 6px 12px;
+      padding: 4px 0;
       border-radius: 12px;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+      min-width: 0;
 
       .nav-icon {
         font-size: 22px;
@@ -89,6 +92,14 @@ import { RadialMenuComponent } from '../radial-menu/radial-menu.component';
           margin-top: 2px;
         }
       }
+    }
+
+    app-radial-menu {
+      flex: 1 1 0px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 0;
     }
   `],
 })

@@ -95,8 +95,8 @@ import { UserProfileComponent } from '../../shared/components/user-profile/user-
     .app-header {
       height: calc(56px + var(--sat));
       padding-top: var(--sat);
-      padding-left: 12px;
-      padding-right: 12px;
+      padding-left: 8px;
+      padding-right: 8px;
       background: rgba(24, 7, 10, 0.94);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -109,18 +109,20 @@ import { UserProfileComponent } from '../../shared/components/user-profile/user-
       width: 100%;
       z-index: 100;
       box-sizing: border-box;
+      gap: 4px;
     }
 
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-shrink: 0;
+      min-width: 0;
     }
 
     .brand-icon-box {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 10px;
       background: var(--alic-color-gold-gradient);
       color: #2b0b10;
@@ -130,13 +132,13 @@ import { UserProfileComponent } from '../../shared/components/user-profile/user-
       box-shadow: var(--alic-shadow-gold-glow);
       flex-shrink: 0;
 
-      span { font-size: 18px; font-weight: 700; }
+      span { font-size: 16px; font-weight: 700; }
     }
 
     .brand-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       background: var(--alic-color-gold-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -148,32 +150,37 @@ import { UserProfileComponent } from '../../shared/components/user-profile/user-
       font-weight: 800;
       letter-spacing: 1px;
       color: rgba(235, 217, 182, 0.6);
+
+      @media (max-width: 400px) {
+        display: none;
+      }
     }
 
     .workspace-pill {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       background: rgba(216, 184, 126, 0.12);
       border: 1px solid rgba(216, 184, 126, 0.3);
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 9999px;
       color: var(--alic-color-gold-light);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       cursor: pointer;
-      max-width: 130px;
-      height: 28px;
+      max-width: 100px;
+      height: 26px;
       box-sizing: border-box;
       transition: all 0.2s ease;
       flex-shrink: 1;
+      min-width: 0;
 
       &:hover {
         background: rgba(216, 184, 126, 0.22);
       }
 
       .pill-icon {
-        font-size: 14px;
+        font-size: 13px;
         color: var(--alic-color-gold-main);
         flex-shrink: 0;
       }
@@ -184,10 +191,11 @@ import { UserProfileComponent } from '../../shared/components/user-profile/user-
         text-overflow: ellipsis;
         flex: 1;
         line-height: 1;
+        min-width: 0;
       }
 
       .pill-arrow {
-        font-size: 13px;
+        font-size: 12px;
         color: rgba(235, 217, 182, 0.6);
         flex-shrink: 0;
       }
@@ -196,7 +204,7 @@ import { UserProfileComponent } from '../../shared/components/user-profile/user-
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       flex-shrink: 0;
     }
 

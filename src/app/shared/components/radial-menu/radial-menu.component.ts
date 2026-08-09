@@ -38,13 +38,19 @@ export interface RadialMenuItem {
       <span class="trigger-label">{{ isOpen() ? 'Fechar' : 'Explorar' }}</span>
     </div>
 
-    <!-- Backdrop Escuro com Blur -->
+    <!-- Backdrop Translúcido com Blur Suave -->
     @if (isOpen()) {
-      <div class="radial-backdrop" (click)="closeMenu()" (window:keydown.escape)="closeMenu()">
+      <div
+        class="radial-backdrop"
+        [class.closing]="isClosing()"
+        (click)="closeMenu()"
+        (window:keydown.escape)="closeMenu()"
+      >
         <!-- Container Semicircular -->
         <div
           #wheelContainer
           class="wheel-modal-container"
+          [class.closing]="isClosing()"
           (click)="$event.stopPropagation()"
           (touchstart)="onTouchStart($event)"
           (touchmove)="onTouchMove($event)"
@@ -88,7 +94,7 @@ export interface RadialMenuItem {
                     [style.background]="getNodeBackground(item, index === selectedIndex())"
                     [style.transform]="'rotate(' + (-rotationAngle()) + 'deg)'"
                   >
-                    <span class="material-symbols-rounded" [style.color]="index === selectedIndex() ? '#18070A' : item.color">
+                    <span class="material-symbols-rounded" [style.color]="index === selectedIndex() ? '#2A0B12' : item.color">
                       {{ item.icon }}
                     </span>
                   </div>
@@ -100,13 +106,22 @@ export interface RadialMenuItem {
           <!-- Ação Rápida / Confirmação de Acesso -->
           <button type="button" class="action-confirm-btn" (click)="confirmSelection()">
             <span class="material-symbols-rounded">{{ activeItem().isAction ? 'add_circle' : 'arrow_forward' }}</span>
-            <span>{{ activeItem().isAction ? 'Executar ' + activeItem().label : 'Acessar ' + activeItem().label }}</span>
+            <span class="btn-text">{{ activeItem().isAction ? 'Criar ' + activeItem().label.replace('+ ', '') : 'Acessar ' + activeItem().label }}</span>
           </button>
         </div>
       </div>
     }
   `,
   styles: [`
+    :host {
+      display: flex;
+      flex: 1 1 0px;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+    }
+
     .radial-trigger-wrapper {
       display: flex;
       flex-direction: column;
@@ -114,21 +129,22 @@ export interface RadialMenuItem {
       justify-content: center;
       position: relative;
       z-index: 105;
-      margin-top: -24px;
+      margin-top: -26px;
+      width: 100%;
     }
 
     .radial-trigger-btn {
-      width: 52px;
-      height: 52px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #A13D63 0%, #4A121A 100%);
+      background: linear-gradient(135deg, #A13D63 0%, #3D0D15 100%);
       border: 2px solid #C9A74E;
       color: #FFF;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(161, 61, 99, 0.6), 0 0 15px rgba(201, 167, 78, 0.4);
+      box-shadow: 0 8px 25px rgba(161, 61, 99, 0.65), 0 0 20px rgba(201, 167, 78, 0.5);
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
       outline: none;
@@ -138,57 +154,70 @@ export interface RadialMenuItem {
       }
 
       &.active {
-        background: linear-gradient(135deg, #C9A74E 0%, #8A6D28 100%);
+        background: linear-gradient(135deg, #E8D39E 0%, #9A772B 100%);
         border-color: #FFF;
-        color: #1F1A1B;
+        color: #2A0B12;
         transform: rotate(180deg);
-        box-shadow: 0 0 25px rgba(201, 167, 78, 0.8);
+        box-shadow: 0 0 30px rgba(201, 167, 78, 0.9), 0 0 15px #FFF;
       }
 
       .glow-effect {
         position: absolute;
-        inset: -4px;
+        inset: -5px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(201, 167, 78, 0.4) 0%, transparent 70%);
-        opacity: 0.8;
+        background: radial-gradient(circle, rgba(201, 167, 78, 0.5) 0%, transparent 70%);
+        opacity: 0.85;
         pointer-events: none;
         animation: pulseGlow 2.5s infinite alternate;
       }
 
       .trigger-icon {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 700;
         z-index: 2;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
       }
     }
 
     @keyframes pulseGlow {
       0% { transform: scale(0.95); opacity: 0.5; }
-      100% { transform: scale(1.15); opacity: 0.9; }
+      100% { transform: scale(1.18); opacity: 1; }
     }
 
     .trigger-label {
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 9px;
+      font-weight: 800;
       color: #E8D39E;
       margin-top: 3px;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
       text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(201, 167, 78, 0.5);
     }
 
-    /* Backdrop Modal */
+    /* Backdrop Translúcido com Blur Suave */
     .radial-backdrop {
       position: fixed;
-      inset: 0;
-      background: rgba(10, 3, 5, 0.85);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      z-index: 500;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      background: rgba(24, 7, 10, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 99999;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       align-items: center;
-      animation: fadeIn 0.25s ease-out;
+      animation: fadeIn 0.25s ease-out forwards;
+      cursor: pointer;
+
+      &.closing {
+        animation: fadeOut 0.22s ease-in forwards;
+      }
     }
 
     @keyframes fadeIn {
@@ -196,27 +225,42 @@ export interface RadialMenuItem {
       to { opacity: 1; }
     }
 
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
     .wheel-modal-container {
       width: 100%;
       max-width: 480px;
-      background: linear-gradient(180deg, rgba(31, 26, 27, 0.98) 0%, rgba(15, 5, 7, 0.99) 100%);
-      border-top-left-radius: 32px;
-      border-top-right-radius: 32px;
-      border-top: 1px solid rgba(201, 167, 78, 0.4);
+      background: linear-gradient(180deg, rgba(42, 11, 18, 0.98) 0%, rgba(13, 4, 6, 0.99) 100%);
+      border-top-left-radius: 36px;
+      border-top-right-radius: 36px;
+      border-top: 1.5px solid rgba(201, 167, 78, 0.6);
       padding: 24px 20px calc(24px + var(--sab)) 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 16px;
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 -15px 50px rgba(161, 61, 99, 0.4), 0 -2px 20px rgba(201, 167, 78, 0.3);
       user-select: none;
       touch-action: none;
-      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      cursor: default;
+
+      &.closing {
+        animation: slideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
     }
 
     @keyframes slideUp {
       from { transform: translateY(100%); }
       to { transform: translateY(0); }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(0); }
+      to { transform: translateY(100%); }
     }
 
     .wheel-header {
@@ -230,33 +274,45 @@ export interface RadialMenuItem {
     .wheel-subtitle {
       font-size: 9px;
       font-weight: 800;
-      letter-spacing: 1.5px;
-      color: rgba(201, 167, 78, 0.7);
+      letter-spacing: 2px;
+      color: #C9A74E;
+      text-shadow: 0 0 10px rgba(201, 167, 78, 0.5);
     }
 
     .active-item-badge {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid #C9A74E;
-      padding: 8px 18px;
+      background: linear-gradient(135deg, rgba(58, 15, 25, 0.9) 0%, rgba(20, 5, 8, 0.95) 100%);
+      border: 1.5px solid #C9A74E;
+      padding: 8px 20px;
       border-radius: 99px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      transition: all 0.2s ease;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(201, 167, 78, 0.3);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .active-icon { font-size: 24px; }
-    .active-title { font-size: 18px; font-weight: 800; color: #FFF; letter-spacing: 0.5px; }
+    .active-icon {
+      font-size: 26px;
+      filter: drop-shadow(0 0 6px rgba(201, 167, 78, 0.6));
+    }
+
+    .active-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFF;
+      letter-spacing: 0.8px;
+      font-family: var(--alic-font-family-primary);
+    }
 
     .category-tag {
-      font-size: 10px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.5);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: rgba(232, 211, 158, 0.7);
       text-transform: uppercase;
     }
 
-    /* Dial Rotativo */
+    /* Dial Rotativo sem Pontilhado */
     .wheel-dial-wrapper {
       position: relative;
       width: 340px;
@@ -270,12 +326,15 @@ export interface RadialMenuItem {
 
     .dial-center-pointer {
       position: absolute;
-      top: 0;
+      top: -2px;
       left: 50%;
       transform: translateX(-50%);
-      color: #C9A74E;
+      color: #E8D39E;
       z-index: 10;
-      span { font-size: 32px; filter: drop-shadow(0 2px 8px #C9A74E); }
+      span {
+        font-size: 34px;
+        filter: drop-shadow(0 2px 10px #C9A74E) drop-shadow(0 0 15px rgba(201, 167, 78, 0.8));
+      }
     }
 
     .wheel-dial {
@@ -284,7 +343,8 @@ export interface RadialMenuItem {
       width: 350px;
       height: 350px;
       border-radius: 50%;
-      border: 2px dashed rgba(201, 167, 78, 0.25);
+      border: none;
+      box-shadow: none;
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
       &.dragging {
@@ -296,10 +356,10 @@ export interface RadialMenuItem {
       position: absolute;
       top: 50%;
       left: 50%;
-      margin-top: -20px;
-      margin-left: -20px;
-      width: 40px;
-      height: 40px;
+      margin-top: -21px;
+      margin-left: -21px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -307,47 +367,62 @@ export interface RadialMenuItem {
       transition: all 0.2s ease;
 
       &.highlighted {
-        transform: scale(1.3) !important;
-        z-index: 5;
+        transform: scale(1.35) !important;
+        z-index: 10;
       }
     }
 
     .node-icon-box {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(201, 167, 78, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-      transition: transform 0.1s linear, background-color 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+      transition: transform 0.1s linear, background 0.2s ease, box-shadow 0.2s ease;
 
-      span { font-size: 19px; }
+      span {
+        font-size: 20px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+      }
     }
 
     .action-confirm-btn {
       width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #A13D63 0%, #7A2846 100%);
-      border: 1px solid rgba(201, 167, 78, 0.4);
+      height: 48px;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #A13D63 0%, #68203B 100%);
+      border: 1.5px solid rgba(201, 167, 78, 0.5);
       color: #FFF;
       font-size: 14px;
       font-weight: 800;
+      letter-spacing: 0.5px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(161, 61, 99, 0.35);
+      box-shadow: 0 8px 25px rgba(161, 61, 99, 0.45), 0 2px 10px rgba(201, 167, 78, 0.2);
       transition: all 0.2s ease;
+      box-sizing: border-box;
 
       &:active {
         transform: scale(0.98);
+        box-shadow: 0 4px 15px rgba(161, 61, 99, 0.6);
       }
 
-      span { font-size: 18px; }
+      span { font-size: 18px; flex-shrink: 0; }
+
+      .btn-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 14px;
+      }
     }
   `],
 })
@@ -360,6 +435,7 @@ export class RadialMenuComponent {
   @ViewChild('wheelContainer') wheelContainer?: ElementRef<HTMLDivElement>;
 
   readonly isOpen = signal<boolean>(false);
+  readonly isClosing = signal<boolean>(false);
   readonly selectedIndex = signal<number>(0);
   readonly rotationAngle = signal<number>(0);
   readonly isDragging = signal<boolean>(false);
@@ -396,16 +472,24 @@ export class RadialMenuComponent {
   readonly activeItem = computed(() => this.items[this.selectedIndex()]);
 
   toggleMenu(): void {
+    if (this.isClosing()) return;
     this.haptics.impactMedium();
-    this.isOpen.update(val => !val);
     if (this.isOpen()) {
+      this.closeMenu();
+    } else {
+      this.isOpen.set(true);
       this.rotationAngle.set(-this.selectedIndex() * (360 / this.items.length));
     }
   }
 
   closeMenu(): void {
-    this.isOpen.set(false);
-    this.isDragging.set(false);
+    if (!this.isOpen() || this.isClosing()) return;
+    this.isClosing.set(true);
+    setTimeout(() => {
+      this.isOpen.set(false);
+      this.isClosing.set(false);
+      this.isDragging.set(false);
+    }, 200);
   }
 
   selectItem(item: RadialMenuItem, index: number): void {
@@ -449,9 +533,9 @@ export class RadialMenuComponent {
 
   getNodeBackground(item: RadialMenuItem, isSelected: boolean): string {
     if (isSelected) {
-      return item.color;
+      return 'linear-gradient(135deg, #E8D39E 0%, #C9A74E 100%)';
     }
-    return 'rgba(31, 26, 27, 0.9)';
+    return 'linear-gradient(135deg, rgba(42, 11, 18, 0.95) 0%, rgba(18, 5, 8, 0.98) 100%)';
   }
 
   /* Gestos de Touch / Mouse Drag */
