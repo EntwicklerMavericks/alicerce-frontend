@@ -221,116 +221,96 @@ export type ApexChartOptions = {
           <span class="table-counter-badge">{{ store.competencias().length }} Meses em Exibição</span>
         </div>
 
-        <div class="responsive-table-container">
-          <table class="forecast-table">
-            <thead>
-              <tr>
-                <th>Competência</th>
-                <th>Saldo Inicial</th>
-                <th>Entradas (+)</th>
-                <th>Saídas (-)</th>
-                <th>Resultado Mês</th>
-                <th>Saldo Acumulado</th>
-                <th>Saúde</th>
-                <th class="text-right">Ação</th>
-              </tr>
-            </thead>
-            <tbody>
-              <ng-container *ngFor="let item of store.competencias()">
-                <!-- Linha Principal -->
-                <tr
-                  class="main-row"
-                  [class.expanded]="store.isAccordionExpanded(item.competencia)"
-                  [class.selected-row]="store.selectedCompetencia() === item.competencia"
-                  (click)="store.toggleAccordion(item.competencia)"
+        <div class="forecast-cards-container">
+          <div
+            *ngFor="let item of store.competencias()"
+            class="month-card glass-card"
+            [class.expanded]="store.isAccordionExpanded(item.competencia)"
+            [class.selected-card]="store.selectedCompetencia() === item.competencia"
+          >
+            <!-- Header do Card do Mês -->
+            <div class="month-card-header" (click)="store.toggleAccordion(item.competencia)">
+              <div class="month-identity">
+                <div class="month-badge-box">
+                  <span class="month-title">{{ item.mesRotulo }}</span>
+                  <span class="month-sub">{{ item.competencia }}</span>
+                </div>
+                <span class="status-badge" [ngClass]="getHealthCssClass(item.zonaSaude)">
+                  <span class="badge-dot"></span>
+                  {{ getHealthLabel(item.zonaSaude) }}
+                </span>
+              </div>
+
+              <div class="month-final-summary">
+                <div class="amount-wrap">
+                  <span class="amount-label">Saldo Acumulado</span>
+                  <span class="amount-val text-gold font-mono">R$ {{ item.saldoProjetado | number : '1.2-2' }}</span>
+                </div>
+                <button class="expand-circle-btn" [class.rotated]="store.isAccordionExpanded(item.competencia)">
+                  <span class="material-symbols-rounded">expand_more</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Grid de Resumo Financeiro do Mês (4 Pílulas Sintéticas em Grid 2x2) -->
+            <div class="month-metrics-grid">
+              <div class="metric-pill">
+                <span class="pill-lbl">Saldo Inicial</span>
+                <span class="pill-num font-mono">R$ {{ item.saldoInicial | number : '1.2-2' }}</span>
+              </div>
+              <div class="metric-pill green">
+                <span class="pill-lbl">Entradas (+)</span>
+                <span class="pill-num font-mono">+R$ {{ item.totalEntradas | number : '1.2-2' }}</span>
+              </div>
+              <div class="metric-pill bordo">
+                <span class="pill-lbl">Saídas (-)</span>
+                <span class="pill-num font-mono">-R$ {{ item.totalSaidas | number : '1.2-2' }}</span>
+              </div>
+              <div class="metric-pill" [class.green]="item.resultadoMes >= 0" [class.bordo]="item.resultadoMes < 0">
+                <span class="pill-lbl">Resultado Mês</span>
+                <span class="pill-num font-mono">{{ item.resultadoMes >= 0 ? '+' : '' }}R$ {{ item.resultadoMes | number : '1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Accordion Expansível de Lançamentos -->
+            <div *ngIf="store.isAccordionExpanded(item.competencia)" class="month-accordion-body">
+              <div class="accordion-sub-header">
+                <h4>Eventos & Lançamentos Projetados de {{ item.mesRotulo }} ({{ item.eventos.length }})</h4>
+                <button
+                  class="select-comp-btn"
+                  (click)="store.selecionarCompetencia(item.competencia); $event.stopPropagation()"
                 >
-                  <td class="cell-month">
-                    <span class="month-label">{{ item.mesRotulo }}</span>
-                    <span class="month-sub">{{ item.competencia }}</span>
-                  </td>
-                  <td class="cell-mono">R$ {{ item.saldoInicial | number : '1.2-2' }}</td>
-                  <td class="cell-mono text-green">+R$ {{ item.totalEntradas | number : '1.2-2' }}</td>
-                  <td class="cell-mono text-bordo">-R$ {{ item.totalSaidas | number : '1.2-2' }}</td>
-                  <td class="cell-mono" [class.text-green]="item.resultadoMes >= 0" [class.text-bordo]="item.resultadoMes < 0">
-                    {{ item.resultadoMes >= 0 ? '+' : '' }}R$ {{ item.resultadoMes | number : '1.2-2' }}
-                  </td>
-                  <td class="cell-mono text-gold bold-val">
-                    R$ {{ item.saldoProjetado | number : '1.2-2' }}
-                  </td>
-                  <td>
-                    <span class="status-badge" [ngClass]="getHealthCssClass(item.zonaSaude)">
-                      <span class="badge-dot"></span>
-                      {{ getHealthLabel(item.zonaSaude) }}
+                  {{ store.selectedCompetencia() === item.competencia ? 'Desfiltrar Categoria' : 'Filtrar Categorias Deste Mês' }}
+                </button>
+              </div>
+
+              <div class="events-cards-list">
+                <div *ngFor="let ev of item.eventos" class="event-mini-card">
+                  <div class="event-left">
+                    <span class="type-icon-badge" [ngClass]="ev.tipo.toLowerCase()">
+                      <span class="material-symbols-rounded">{{ getEventTypeIcon(ev.tipo) }}</span>
                     </span>
-                  </td>
-                  <td class="text-right">
-                    <button class="expand-btn" [class.rotated]="store.isAccordionExpanded(item.competencia)">
-                      <span class="material-symbols-rounded">expand_more</span>
-                    </button>
-                  </td>
-                </tr>
-
-                <!-- Sublinha: Accordion Expansível -->
-                <tr *ngIf="store.isAccordionExpanded(item.competencia)" class="accordion-row">
-                  <td colspan="8">
-                    <div class="accordion-content">
-                      <div class="accordion-sub-header">
-                        <h4>Eventos & Lançamentos Projetados de {{ item.mesRotulo }} ({{ item.eventos.length }})</h4>
-                        <button
-                          class="select-comp-btn"
-                          (click)="store.selecionarCompetencia(item.competencia); $event.stopPropagation()"
-                        >
-                          {{ store.selectedCompetencia() === item.competencia ? 'Desfiltrar Categoria' : 'Filtrar Categorias Deste Mês' }}
-                        </button>
-                      </div>
-
-                      <div class="events-table-grid">
-                        <div class="events-grid-header">
-                          <span>Tipo</span>
-                          <span>Descrição</span>
-                          <span>Categoria</span>
-                          <span>Fonte</span>
-                          <span>Valor</span>
-                          <span>Status</span>
-                        </div>
-
-                        <div *ngFor="let ev of item.eventos" class="event-grid-row">
-                          <div class="type-cell">
-                            <span class="type-icon-badge" [ngClass]="ev.tipo.toLowerCase()">
-                              <span class="material-symbols-rounded">{{ getEventTypeIcon(ev.tipo) }}</span>
-                            </span>
-                            <span class="type-name">{{ ev.tipo }}</span>
-                          </div>
-
-                          <div class="desc-cell font-bold">
-                            {{ ev.descricao }}
-                          </div>
-
-                          <div class="cat-cell">
-                            <span class="category-chip">{{ ev.categoria }}</span>
-                          </div>
-
-                          <div class="source-cell text-sub">
-                            {{ ev.fonte }}
-                          </div>
-
-                          <div class="amount-cell" [class.text-green]="ev.tipo === 'RECEITA'" [class.text-bordo]="ev.tipo !== 'RECEITA'">
-                            {{ ev.tipo === 'RECEITA' ? '+' : '-' }} R$ {{ ev.valor | number : '1.2-2' }}
-                          </div>
-
-                          <div class="status-cell">
-                            <span class="confirm-badge" [class.confirmed]="ev.confirmado">
-                              {{ ev.confirmado ? 'Confirmado' : 'Projetado' }}
-                            </span>
-                          </div>
-                        </div>
+                    <div class="event-details">
+                      <span class="event-desc">{{ ev.descricao }}</span>
+                      <div class="event-tags">
+                        <span class="tag-cat">{{ ev.categoria }}</span>
+                        <span class="tag-src">{{ ev.fonte }}</span>
                       </div>
                     </div>
-                  </td>
-                </tr>
-              </ng-container>
-            </tbody>
-          </table>
+                  </div>
+
+                  <div class="event-right">
+                    <span class="event-val font-mono" [class.text-green]="ev.tipo === 'RECEITA'" [class.text-bordo]="ev.tipo !== 'RECEITA'">
+                      {{ ev.tipo === 'RECEITA' ? '+' : '-' }} R$ {{ ev.valor | number : '1.2-2' }}
+                    </span>
+                    <span class="confirm-badge" [class.confirmed]="ev.confirmado">
+                      {{ ev.confirmado ? 'Confirmado' : 'Projetado' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -764,30 +744,145 @@ export type ApexChartOptions = {
       }
     }
 
-    /* Sublinha Accordion */
-    .accordion-row {
-      td {
-        padding: 0 0 12px 0;
+    .forecast-cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .month-card {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(216, 184, 126, 0.15);
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+
+      &.selected-card {
+        border-color: #C9A74E;
+        background: rgba(201, 167, 78, 0.08);
       }
     }
 
-    .accordion-content {
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(216, 184, 126, 0.2);
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 4px;
+    .month-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      gap: 10px;
+    }
+
+    .month-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .month-badge-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .month-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .month-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .month-final-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .amount-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .amount-label {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+
+    .amount-val {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .expand-circle-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: none;
+      color: #C9A74E;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+
+    .month-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-pill {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+
+      .pill-lbl {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .pill-num {
+        font-size: 12px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      &.green .pill-num { color: #34d399; }
+      &.bordo .pill-num { color: #f87171; }
+    }
+
+    .month-accordion-body {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(201, 167, 78, 0.25);
     }
 
     .accordion-sub-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
 
       h4 {
         margin: 0;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 700;
         color: #C9A74E;
       }
@@ -797,45 +892,75 @@ export type ApexChartOptions = {
       background: rgba(201, 167, 78, 0.15);
       border: 1px solid rgba(201, 167, 78, 0.3);
       color: #ebd9b6;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .events-table-grid {
+    .events-cards-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
-    .events-grid-header {
-      display: grid;
-      grid-template-columns: 1.2fr 2fr 1.5fr 1.2fr 1.2fr 1fr;
-      gap: 10px;
-      padding: 8px 12px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #9c8e7c;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .event-grid-row {
-      display: grid;
-      grid-template-columns: 1.2fr 2fr 1.5fr 1.2fr 1.2fr 1fr;
-      gap: 10px;
+    .event-mini-card {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 8px;
-      font-size: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 8px 10px;
+      gap: 8px;
     }
 
-    .type-cell {
+    .event-left {
       display: flex;
       align-items: center;
       gap: 8px;
+      min-width: 0;
+    }
+
+    .event-details {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .event-desc {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-tags {
+      display: flex;
+      gap: 4px;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+
+      .tag-cat { background: rgba(255, 255, 255, 0.05); padding: 1px 4px; border-radius: 4px; }
+      .tag-src { color: rgba(201, 167, 78, 0.8); }
+    }
+
+    .event-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .event-val {
+      font-size: 12px;
+      font-weight: 700;
+
+      &.text-green { color: #34d399; }
+      &.text-bordo { color: #f87171; }
     }
 
     .type-icon-badge {
@@ -845,6 +970,7 @@ export type ApexChartOptions = {
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
 
       span { font-size: 16px; }
 
@@ -856,24 +982,11 @@ export type ApexChartOptions = {
       &.fatura { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
     }
 
-    .category-chip {
-      background: rgba(255, 255, 255, 0.06);
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      color: #ebd9b6;
-    }
-
-    .amount-cell {
-      font-family: var(--font-mono, 'Space Grotesk', monospace);
-      font-weight: 700;
-    }
-
     .confirm-badge {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
+      padding: 1px 6px;
+      border-radius: 4px;
       background: rgba(255, 255, 255, 0.06);
       color: #9c8e7c;
 
