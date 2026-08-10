@@ -487,6 +487,8 @@ import {
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
+      width: 100%;
     }
 
     .action-chip-btn {
@@ -502,6 +504,7 @@ import {
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
 
       span { font-size: 16px; }
 
@@ -533,10 +536,12 @@ import {
 
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
       gap: 8px;
       border-top: 1px dashed rgba(216, 184, 126, 0.2);
       padding-top: 14px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .metric-card {
@@ -655,7 +660,10 @@ import {
     .etapa-card-header {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
+      gap: 8px;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .etapa-num-badge {
@@ -677,23 +685,27 @@ import {
       display: flex;
       flex-direction: column;
       gap: 2px;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .etapa-title-line {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      min-width: 0;
+      flex-wrap: wrap;
     }
 
     .etapa-nome {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       color: #ffffff;
       margin: 0;
     }
 
     .etapa-desc {
-      font-size: 12px;
+      font-size: 11px;
       color: rgba(235, 217, 182, 0.6);
       margin: 0;
     }
@@ -701,7 +713,8 @@ import {
     .etapa-actions-box {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
+      flex-shrink: 0;
     }
 
     .reorder-btns {
