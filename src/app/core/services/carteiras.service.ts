@@ -9,8 +9,9 @@ import {
   TransferirFundosRequest,
   TransferenciaResponse,
 } from '../models/carteira.models';
+import { environment } from '../../../environments/environment';
 
-const API_URL = 'http://localhost:3000/api/v1/carteiras';
+const API_URL = `${environment.apiUrl}/carteiras`;
 
 @Injectable({
   providedIn: 'root',

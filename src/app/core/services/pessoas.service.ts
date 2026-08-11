@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Pessoa, CriarPessoaRequest } from '../models/pessoa.models';
+import { environment } from '../../../environments/environment';
 
-const API_URL = 'http://localhost:3000/api/v1/pessoas';
+const API_URL = `${environment.apiUrl}/pessoas`;
 
 @Injectable({
   providedIn: 'root',
