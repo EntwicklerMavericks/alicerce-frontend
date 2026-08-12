@@ -14,6 +14,12 @@ import { ToastComponent } from '../../shared/components/toast/toast.component';
 import { OfflineBannerComponent } from '../../shared/components/offline-banner/offline-banner.component';
 import { UserProfileComponent } from '../../shared/components/user-profile/user-profile.component';
 
+import { FormularioDespesaComponent } from '../../features/lancamentos/components/formulario-despesa.component';
+import { FormularioReceitaComponent } from '../../features/lancamentos/components/formulario-receita.component';
+import { FormularioMetaComponent } from '../../features/metas/components/formulario-meta.component';
+import { FormularioProjetoComponent } from '../../features/projetos/components/formulario-projeto.component';
+import { FormularioWishlistComponent } from '../../features/wishlist/components/formulario-wishlist.component';
+
 @Component({
   selector: 'app-shell',
   standalone: true,
@@ -291,7 +297,7 @@ export class AppShellComponent implements OnInit {
     // Carregar contagem de alertas não lidos no header
     this.alertasStore.carregarContagemNaoLidos();
 
-    // Registro Dinâmico Inicial de Ações do FAB por Prioridade (ADR-025 & Refinamento Sprint 1.5)
+    // Registro Dinâmico Inicial de Ações do FAB por Prioridade
     this.fabRegistry.registerAction({
       id: 'nova-despesa',
       label: '+ Nova Despesa',
@@ -299,7 +305,7 @@ export class AppShellComponent implements OnInit {
       color: '#4a121a',
       priority: 100,
       execute: () => {
-        this.toastService.showWarning('Formulário de Despesa (Sprint 4.1)');
+        this.overlayService.openBottomSheet({ component: FormularioDespesaComponent });
       },
     });
 
@@ -310,9 +316,7 @@ export class AppShellComponent implements OnInit {
       color: '#10b981',
       priority: 90,
       execute: () => {
-        this.toastService.showSuccess('Formulário de Receita (Sprint 4.1)', 'DESFAZER', () => {
-          this.toastService.showWarning('Ação desfeita!');
-        });
+        this.overlayService.openBottomSheet({ component: FormularioReceitaComponent });
       },
     });
 
@@ -323,7 +327,29 @@ export class AppShellComponent implements OnInit {
       color: '#d8b87e',
       priority: 80,
       execute: () => {
-        this.toastService.showSuccess('Formulário de Meta (Sprint 5.1)');
+        this.overlayService.openBottomSheet({ component: FormularioMetaComponent });
+      },
+    });
+
+    this.fabRegistry.registerAction({
+      id: 'novo-projeto',
+      label: '+ Novo Projeto',
+      icon: 'account_tree',
+      color: '#F59E0B',
+      priority: 70,
+      execute: () => {
+        this.overlayService.openBottomSheet({ component: FormularioProjetoComponent });
+      },
+    });
+
+    this.fabRegistry.registerAction({
+      id: 'novo-desejo',
+      label: '+ Novo Desejo',
+      icon: 'favorite',
+      color: '#EC4899',
+      priority: 60,
+      execute: () => {
+        this.overlayService.openBottomSheet({ component: FormularioWishlistComponent });
       },
     });
   }

@@ -509,12 +509,8 @@ export class RadialMenuComponent {
       const matched = registeredActions.find((a) => a.id === target.id);
       if (matched && matched.execute) {
         matched.execute();
-      } else {
-        // Fallback e navegação para a rota do módulo correspondente
-        this.toastService.showSuccess(`Abrindo formulário de ${target.label}`);
-        if (target.route) {
-          this.router.navigate([target.route]);
-        }
+      } else if (target.route) {
+        this.router.navigate([target.route]);
       }
     } else if (target.route) {
       this.router.navigate([target.route]);
