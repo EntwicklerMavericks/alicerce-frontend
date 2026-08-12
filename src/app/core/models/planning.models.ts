@@ -52,8 +52,8 @@ export interface StatMesDestaque {
 export interface TimelineForecastResult {
   saldoAtual: number;
   saldoProjetado12Meses: number;
-  mesMaiorSaldo: StatMesDestaque;
-  mesMaiorAperto: StatMesDestaque;
+  mesMaiorSaldo: StatMesDestaque | null;
+  mesMaiorAperto: StatMesDestaque | null;
   zonaGlobal: ZonaSaudeFinanceira;
   competencias: CompetenciaForecast[];
   breakdownConsolidado: ExplanationBreakdown[];

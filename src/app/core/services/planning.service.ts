@@ -25,7 +25,7 @@ export class PlanningService {
   getForecast(): Observable<TimelineForecastResult> {
     return this.http.get<TimelineForecastResult>(`${this.baseUrl}/forecast`).pipe(
       catchError(() => {
-        return of(this.gerarForecastMockLocal());
+        return of(this.gerarForecastVazio());
       })
     );
   }
@@ -33,14 +33,47 @@ export class PlanningService {
   getOverview(): Observable<PlanningOverviewResult> {
     return this.http.get<PlanningOverviewResult>(`${this.baseUrl}/overview`).pipe(
       catchError(() => {
-        return of(this.gerarOverviewMockLocal());
+        return of(this.gerarOverviewVazio());
       })
     );
   }
 
-  /**
-   * Engine de cálculo e geração local de forecast de 12 meses.
-   */
+  gerarForecastVazio(): TimelineForecastResult {
+    return {
+      saldoAtual: 0,
+      saldoProjetado12Meses: 0,
+      mesMaiorSaldo: null,
+      mesMaiorAperto: null,
+      zonaGlobal: 'VERDE',
+      competencias: [],
+      breakdownConsolidado: [],
+    };
+  }
+
+  gerarOverviewVazio(): PlanningOverviewResult {
+    return {
+      vencimentos30Dias: [],
+      totalVencimentos30Dias: 0,
+      valorTotalVencimentos30Dias: 0,
+      totalVencidosAtrasados: 0,
+      valorVencidosAtrasados: 0,
+      projetosGargalo: [],
+      totalProjetosGargalo: 0,
+      readinessMedioProjetos: 0,
+      metasDestaque: [],
+      totalMetasAtivas: 0,
+      progressoMedioMetas: 0,
+      orcamentosAlerta: [],
+      totalOrcamentosAlerta: 0,
+      mediaConsumoOrcamentos: 0,
+      healthScoreGeral: 100,
+      resumoFinanceiro: {
+        saldoDisponivelTotal: 0,
+        compromissosProximos30Dias: 0,
+        capacidadeAporteMensal: 0,
+      },
+    };
+  }
   gerarForecastMockLocal(): TimelineForecastResult {
     const hoje = new Date();
     let anoAtual = hoje.getFullYear();

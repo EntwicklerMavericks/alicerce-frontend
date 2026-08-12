@@ -147,15 +147,15 @@ export class PlanningStore {
 
     try {
       const res = await firstValueFrom(this.planningService.getForecast());
-      if (res && res.competencias && res.competencias.length > 0) {
+      if (res) {
         this.resultado.set(res);
       } else {
-        const mockRes = this.planningService.gerarForecastMockLocal();
-        this.resultado.set(mockRes);
+        const emptyRes = this.planningService.gerarForecastVazio();
+        this.resultado.set(emptyRes);
       }
     } catch (err: any) {
-      const mockRes = this.planningService.gerarForecastMockLocal();
-      this.resultado.set(mockRes);
+      const emptyRes = this.planningService.gerarForecastVazio();
+      this.resultado.set(emptyRes);
     } finally {
       this.carregando.set(false);
     }
@@ -166,15 +166,15 @@ export class PlanningStore {
     this.carregandoOverview.set(true);
     try {
       const res = await firstValueFrom(this.planningService.getOverview());
-      if (res && res.vencimentos30Dias) {
+      if (res) {
         this.overviewResult.set(res);
       } else {
-        const mockRes = this.planningService.gerarOverviewMockLocal();
-        this.overviewResult.set(mockRes);
+        const emptyRes = this.planningService.gerarOverviewVazio();
+        this.overviewResult.set(emptyRes);
       }
     } catch (err: any) {
-      const mockRes = this.planningService.gerarOverviewMockLocal();
-      this.overviewResult.set(mockRes);
+      const emptyRes = this.planningService.gerarOverviewVazio();
+      this.overviewResult.set(emptyRes);
     } finally {
       this.carregandoOverview.set(false);
     }
