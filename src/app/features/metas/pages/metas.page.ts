@@ -362,15 +362,11 @@ import { Meta, StatusMeta } from '../../../core/models/meta.models';
 
     .stats-pills-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
       gap: 8px;
       border-top: 1px dashed rgba(216, 184, 126, 0.2);
       padding-top: 12px;
       margin-top: 4px;
-
-      @media (max-width: 580px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
     }
 
     .stat-pill {

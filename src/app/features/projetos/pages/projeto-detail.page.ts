@@ -770,15 +770,11 @@ import {
 
     .etapa-metrics-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
       gap: 8px;
       background: rgba(0, 0, 0, 0.2);
       padding: 8px 10px;
       border-radius: 10px;
-
-      @media (max-width: 580px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
     }
 
     .etapa-metric {
