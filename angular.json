@@ -21,7 +21,10 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/alicerce-frontend",
+            "outputPath": {
+              "base": "dist/alicerce-frontend/browser",
+              "browser": ""
+            },
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [

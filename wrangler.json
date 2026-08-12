@@ -1,0 +1,6 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "alicerce-frontend",
+  "pages_build_output_dir": "dist/alicerce-frontend/browser",
+  "compatibility_date": "2026-08-10"
+}
