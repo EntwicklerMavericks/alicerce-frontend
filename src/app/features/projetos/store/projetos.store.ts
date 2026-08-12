@@ -16,187 +16,6 @@ import {
   VincularItemDto,
 } from '../../../core/models/projeto.models';
 
-const MOCK_PROJETOS_INICIAIS: Projeto[] = [
-  {
-    id: 'proj-1',
-    workspaceId: 'ws-default',
-    nome: 'Reforma Cozinha Gourmet & Varanda',
-    descricao: 'Reformulação dos móveis planejados, piso porcelanato e substituição de eletros',
-    orcamentoEstimado: 35000,
-    status: 'EM_ANDAMENTO',
-    prazoEstimado: '2026-12-15',
-    cor: '#C9A74E',
-    icone: 'countertops',
-    etapas: [
-      {
-        id: 'etapa-1',
-        projetoId: 'proj-1',
-        nome: 'Projeto Arquitetônico & Demolição',
-        descricao: 'Remoção de azulejos antigos e instalação de pontos hidráulicos',
-        ordem: 1,
-        status: 'CONCLUIDA',
-        custoEstimado: 5000,
-        custoReal: 4800,
-        itens: [],
-      },
-      {
-        id: 'etapa-2',
-        projetoId: 'proj-1',
-        nome: 'Piso Porcelanato & Marcenaria',
-        descricao: 'Instalação dos armários planejados e bancada em granito',
-        ordem: 2,
-        status: 'EM_ANDAMENTO',
-        custoEstimado: 20000,
-        custoReal: 18500,
-        itens: [
-          {
-            id: 'item-1',
-            etapaId: 'etapa-2',
-            tipo: 'META',
-            referenciaId: 'meta-2',
-            valorCalculado: 15000,
-            valorFinanciado: 12500,
-            meta: {
-              id: 'meta-2',
-              workspaceId: 'ws-default',
-              nome: 'Reserva Marcenaria Cozinha',
-              valorAlvo: 15000,
-              valorAtual: 12500,
-              percentualConcluido: 83.3,
-              prazo: '2026-10-31',
-              status: 'EM_ANDAMENTO',
-              cor: '#C9A74E',
-              icone: 'countertops',
-            },
-          },
-        ],
-      },
-      {
-        id: 'etapa-3',
-        projetoId: 'proj-1',
-        nome: 'Eletrodomésticos Inox & Finalização',
-        descricao: 'Compra do cooktop, forno de embutir e depurador inox',
-        ordem: 3,
-        status: 'PENDENTE',
-        custoEstimado: 10000,
-        custoReal: 0,
-        itens: [
-          {
-            id: 'item-2',
-            etapaId: 'etapa-3',
-            tipo: 'WISHLIST',
-            referenciaId: 'wish-1',
-            valorCalculado: 2800,
-            valorFinanciado: 0,
-            itemWishlist: {
-              id: 'wish-1',
-              workspaceId: 'ws-default',
-              nome: 'Cooktop de Indução 4 Bocas',
-              precoEstimado: 2800,
-              prioridade: 'ALTA',
-              status: 'PLANEJADO',
-              diasEsfriamento: 14,
-              dataInicioEsfriamento: new Date().toISOString(),
-              dataCriacao: new Date().toISOString(),
-            },
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'proj-2',
-    workspaceId: 'ws-default',
-    nome: 'Aquisição de Imóvel Próprio',
-    descricao: 'Acúmulo de capital para entrada de 30% e custos de escritura/cartório',
-    orcamentoEstimado: 120000,
-    status: 'PLANEJAMENTO',
-    prazoEstimado: '2028-06-30',
-    cor: '#A13D63',
-    icone: 'home',
-    etapas: [
-      {
-        id: 'etapa-4',
-        projetoId: 'proj-2',
-        nome: 'Reserva para Sinal e Entrada',
-        descricao: 'Economia direta para sinal de compra e parcela da entrada',
-        ordem: 1,
-        status: 'EM_ANDAMENTO',
-        custoEstimado: 100000,
-        custoReal: 45000,
-        itens: [
-          {
-            id: 'item-3',
-            etapaId: 'etapa-4',
-            tipo: 'META',
-            referenciaId: 'meta-1',
-            valorCalculado: 100000,
-            valorFinanciado: 45000,
-            meta: {
-              id: 'meta-1',
-              workspaceId: 'ws-default',
-              nome: 'Reserva Entrada Imóvel',
-              valorAlvo: 100000,
-              valorAtual: 45000,
-              percentualConcluido: 45.0,
-              prazo: '2027-12-31',
-              status: 'EM_ANDAMENTO',
-              cor: '#A13D63',
-              icone: 'home',
-            },
-          },
-        ],
-      },
-      {
-        id: 'etapa-5',
-        projetoId: 'proj-2',
-        nome: 'Documentação, ITBI & Emissão de Escritura',
-        descricao: 'Custos cartorários e impostos municipais na transferência do imóvel',
-        ordem: 2,
-        status: 'PENDENTE',
-        custoEstimado: 20000,
-        custoReal: 0,
-        itens: [],
-      },
-    ],
-  },
-  {
-    id: 'proj-3',
-    workspaceId: 'ws-default',
-    nome: 'Sabático & Certificação Internacional',
-    descricao: 'Curso intensivo de arquitetura cloud na Europa e seguro viagem',
-    orcamentoEstimado: 25000,
-    status: 'CONCLUIDO',
-    prazoEstimado: '2026-05-01',
-    cor: '#0288d1',
-    icone: 'flight_takeoff',
-    etapas: [
-      {
-        id: 'etapa-6',
-        projetoId: 'proj-3',
-        nome: 'Passagens & Acomodação',
-        descricao: 'Reservas de voos e estadia em Lisboa',
-        ordem: 1,
-        status: 'CONCLUIDA',
-        custoEstimado: 12000,
-        custoReal: 11800,
-        itens: [],
-      },
-      {
-        id: 'etapa-7',
-        projetoId: 'proj-3',
-        nome: 'Inscrição no Curso & Prova de Certificação',
-        descricao: 'Taxas acadêmicas e voucher para exame AWS/Azure',
-        ordem: 2,
-        status: 'CONCLUIDA',
-        custoEstimado: 13000,
-        custoReal: 13000,
-        itens: [],
-      },
-    ],
-  },
-];
-
 @Injectable({
   providedIn: 'root',
 })
@@ -263,14 +82,13 @@ export class ProjetosStore {
 
     try {
       const lista = await firstValueFrom(this.api.listar());
-      if (Array.isArray(lista) && lista.length > 0) {
+      if (Array.isArray(lista)) {
         this.projetos.set(lista.map(this.processarProjeto));
       } else {
-        this.projetos.set(MOCK_PROJETOS_INICIAIS.map(this.processarProjeto));
+        this.projetos.set([]);
       }
     } catch (_) {
-      // Fallback mock local se backend indisponível
-      this.projetos.set(MOCK_PROJETOS_INICIAIS.map(this.processarProjeto));
+      this.projetos.set([]);
     } finally {
       this.carregando.set(false);
     }

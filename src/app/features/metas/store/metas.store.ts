@@ -3,88 +3,6 @@ import { firstValueFrom } from 'rxjs';
 import { MetasService } from '../../../core/services/metas.service';
 import { Meta, CriarMetaDto, CriarAporteDto, AporteMeta, StatusMeta } from '../../../core/models/meta.models';
 
-const MOCK_METAS_INICIAIS: Meta[] = [
-  {
-    id: 'meta-1',
-    workspaceId: 'ws-default',
-    nome: 'Reserva de Emergência',
-    descricao: '6 meses de custo fixo para segurança da família',
-    valorAlvo: 20000,
-    valorAtual: 12500,
-    percentualConcluido: 62.5,
-    prazo: '2026-12-31',
-    status: 'EM_ANDAMENTO',
-    cor: '#C9A74E',
-    icone: 'shield',
-    ritmoMensalEstimado: 1500,
-    diasRestantes: 145,
-    projetadoPrazo: true,
-    aportes: [
-      { id: 'ap-1', metaId: 'meta-1', valor: 2500, data: '2026-07-15', observacao: 'Sobra salário julho' },
-      { id: 'ap-2', metaId: 'meta-1', valor: 5000, data: '2026-06-10', observacao: 'Rendimento investimentos' },
-      { id: 'ap-3', metaId: 'meta-1', valor: 5000, data: '2026-05-01', observacao: 'Aporte inicial' },
-    ],
-  },
-  {
-    id: 'meta-2',
-    workspaceId: 'ws-default',
-    nome: 'Troca de Carro (SUV)',
-    descricao: 'Entrada para troca do veículo seminovo',
-    valorAlvo: 45000,
-    valorAtual: 38000,
-    percentualConcluido: 84.44,
-    prazo: '2026-10-31',
-    status: 'EM_ANDAMENTO',
-    cor: '#2e7d32',
-    icone: 'directions_car',
-    ritmoMensalEstimado: 2333,
-    diasRestantes: 84,
-    projetadoPrazo: true,
-    aportes: [
-      { id: 'ap-4', metaId: 'meta-2', valor: 8000, data: '2026-07-20', observacao: 'Venda de itens usados' },
-      { id: 'ap-5', metaId: 'meta-2', valor: 30000, data: '2026-04-12', observacao: 'Bônus semestral' },
-    ],
-  },
-  {
-    id: 'meta-3',
-    workspaceId: 'ws-default',
-    nome: 'Viagem em Família (Japão)',
-    descricao: 'Passagens e hospedagens para 2027',
-    valorAlvo: 18000,
-    valorAtual: 4500,
-    percentualConcluido: 25.0,
-    prazo: '2026-09-01',
-    status: 'EM_ANDAMENTO',
-    cor: '#A13D63',
-    icone: 'flight_takeoff',
-    ritmoMensalEstimado: 13500,
-    diasRestantes: 24,
-    projetadoPrazo: false,
-    aportes: [
-      { id: 'ap-6', metaId: 'meta-3', valor: 4500, data: '2026-06-01', observacao: 'Poupança viagem' },
-    ],
-  },
-  {
-    id: 'meta-4',
-    workspaceId: 'ws-default',
-    nome: 'Curso Pós-Graduação',
-    descricao: 'Especialização em Arquitetura de Software',
-    valorAlvo: 8000,
-    valorAtual: 8000,
-    percentualConcluido: 100.0,
-    prazo: '2026-07-01',
-    status: 'CONCLUIDA',
-    cor: '#0288d1',
-    icone: 'school',
-    ritmoMensalEstimado: 0,
-    diasRestantes: 0,
-    projetadoPrazo: true,
-    aportes: [
-      { id: 'ap-7', metaId: 'meta-4', valor: 8000, data: '2026-06-30', observacao: 'Pagamento integral à vista' },
-    ],
-  },
-];
-
 @Injectable({
   providedIn: 'root',
 })
@@ -139,14 +57,13 @@ export class MetasStore {
 
     try {
       const lista = await firstValueFrom(this.api.listar());
-      if (Array.isArray(lista) && lista.length > 0) {
+      if (Array.isArray(lista)) {
         this.metas.set(lista.map(this.processarMeta));
       } else {
-        this.metas.set(MOCK_METAS_INICIAIS.map(this.processarMeta));
+        this.metas.set([]);
       }
     } catch (err: any) {
-      // Fallback mock local se backend indisponível
-      this.metas.set(MOCK_METAS_INICIAIS.map(this.processarMeta));
+      this.metas.set([]);
     } finally {
       this.carregando.set(false);
     }

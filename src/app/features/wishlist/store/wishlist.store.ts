@@ -12,88 +12,6 @@ import {
   StatusWishlist,
 } from '../../../core/models/wishlist.models';
 
-const MOCK_WISHLIST_INICIAL: ItemWishlist[] = [
-  {
-    id: 'wish-1',
-    workspaceId: 'ws-default',
-    nome: 'Smartwatch Garmin Forerunner 265',
-    descricao: 'Relógio GPS para treinos de corrida e triatlo com tela AMOLED',
-    precoEstimado: 3200,
-    prioridade: 'ALTA',
-    status: 'ESFRIAMENTO',
-    diasEsfriamento: 14,
-    dataInicioEsfriamento: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 dias atrás
-    linkUrl: 'https://garmin.com.br/forerunner-265',
-    imagemUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
-    dataCriacao: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    categoria: { id: 'cat-tech', nome: 'Tecnologia', icone: 'devices', cor: '#0288d1' },
-  },
-  {
-    id: 'wish-2',
-    workspaceId: 'ws-default',
-    nome: 'Fone Noise Cancelling Sony WH-1000XM5',
-    descricao: 'Fone over-ear para foco no trabalho e viagens',
-    precoEstimado: 2400,
-    prioridade: 'MEDIA',
-    status: 'ESFRIAMENTO',
-    diasEsfriamento: 7,
-    dataInicioEsfriamento: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 dias atrás (concluído!)
-    linkUrl: 'https://sony.com.br/wh-1000xm5',
-    imagemUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
-    dataCriacao: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-    categoria: { id: 'cat-audio', nome: 'Áudio', icone: 'headphones', cor: '#7b1fa2' },
-  },
-  {
-    id: 'wish-3',
-    workspaceId: 'ws-default',
-    nome: 'Cadeira Ergonômica Herman Miller Sayl',
-    descricao: 'Cadeira ergonômica para suporte de postura no home office',
-    precoEstimado: 7800,
-    prioridade: 'URGENTE',
-    status: 'PLANEJADO',
-    diasEsfriamento: 30,
-    dataInicioEsfriamento: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(),
-    metaId: 'meta-1',
-    meta: { id: 'meta-1', nome: 'Home Office Premium', percentualConcluido: 65 },
-    imagemUrl: 'https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=500',
-    dataCriacao: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(),
-    categoria: { id: 'cat-móveis', nome: 'Home Office', icone: 'chair', cor: '#C9A74E' },
-  },
-  {
-    id: 'wish-4',
-    workspaceId: 'ws-default',
-    nome: 'Monitor UltraWide 34 Curved 144Hz',
-    descricao: 'Monitor de alta resolução para produtividade e código',
-    precoEstimado: 3500,
-    precoPago: 3299,
-    prioridade: 'ALTA',
-    status: 'COMPRADO',
-    diasEsfriamento: 14,
-    dataInicioEsfriamento: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    dataConclusao: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    quebrouDesafio: false,
-    imagemUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500',
-    dataCriacao: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    categoria: { id: 'cat-tech', nome: 'Tecnologia', icone: 'desktop_windows', cor: '#0288d1' },
-  },
-  {
-    id: 'wish-5',
-    workspaceId: 'ws-default',
-    nome: 'Caixa de Som Bluetooth PartyBox',
-    descricao: 'Caixa portatil potente para festas e eventos',
-    precoEstimado: 1800,
-    prioridade: 'BAIXA',
-    status: 'DESISTIDO',
-    diasEsfriamento: 14,
-    dataInicioEsfriamento: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-    dataConclusao: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    motivoDesistencia: 'Percebi que usaria muito raramente e salvei o valor na Reserva de Emergência!',
-    economiaEvitada: 1800,
-    dataCriacao: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-    categoria: { id: 'cat-lazer', nome: 'Lazer & Estilo', icone: 'speaker', cor: '#A13D63' },
-  },
-];
-
 @Injectable({
   providedIn: 'root',
 })
@@ -243,14 +161,13 @@ export class WishlistStore {
 
     try {
       const res = await firstValueFrom(this.api.listar());
-      if (Array.isArray(res) && res.length > 0) {
+      if (Array.isArray(res)) {
         this.itens.set(res);
       } else {
-        this.itens.set(MOCK_WISHLIST_INICIAL);
+        this.itens.set([]);
       }
     } catch (err) {
-      // Fallback local caso API esteja offline
-      this.itens.set(MOCK_WISHLIST_INICIAL);
+      this.itens.set([]);
     } finally {
       this.carregando.set(false);
     }
