@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import {
@@ -368,16 +368,17 @@ export type ChartOptions = {
 
         <div class="chart-wrapper">
           <apx-chart
-            [series]="chartOptions.series"
-            [chart]="chartOptions.chart"
-            [xaxis]="chartOptions.xaxis"
-            [yaxis]="chartOptions.yaxis"
-            [stroke]="chartOptions.stroke"
-            [tooltip]="chartOptions.tooltip"
-            [dataLabels]="chartOptions.dataLabels"
-            [fill]="chartOptions.fill"
-            [grid]="chartOptions.grid"
-            [colors]="chartOptions.colors"
+            *ngIf="chartOptions()"
+            [series]="chartOptions().series"
+            [chart]="chartOptions().chart"
+            [xaxis]="chartOptions().xaxis"
+            [yaxis]="chartOptions().yaxis"
+            [stroke]="chartOptions().stroke"
+            [tooltip]="chartOptions().tooltip"
+            [dataLabels]="chartOptions().dataLabels"
+            [fill]="chartOptions().fill"
+            [grid]="chartOptions().grid"
+            [colors]="chartOptions().colors"
           ></apx-chart>
         </div>
       </section>
@@ -506,60 +507,75 @@ export type ChartOptions = {
 export class DashboardPage {
   public readonly store = inject(DashboardStore);
 
-  public chartOptions: ChartOptions = {
-    series: [
-      {
-        name: 'Saldo Projetado',
-        data: [12850, 13400, 14100, 13800, 15200, 16100, 16420],
+  public readonly chartOptions = computed<ChartOptions>(() => {
+    const dash = this.store.dashboardData();
+    const saldoAtual = Number(dash?.saldoAtual || 0);
+    const saldoProjetado = Number(dash?.saldoProjetado || 0);
+    const despesas = Number(dash?.despesasPendentes || 0);
+
+    const diffSaldo = (saldoProjetado - saldoAtual) / 6;
+    const seriesSaldo = Array.from({ length: 7 }, (_, i) => Math.round(saldoAtual + diffSaldo * i));
+    const seriesDespesas = Array.from({ length: 7 }, () => despesas);
+
+    const hoje = new Date();
+    const mesNome = hoje.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
+    const categories = ['01', '05', '10', '15', '20', '25', '30'].map((dia) => `${dia} ${mesNome}`);
+
+    return {
+      series: [
+        {
+          name: 'Saldo Projetado',
+          data: seriesSaldo,
+        },
+        {
+          name: 'Saídas & Despesas',
+          data: seriesDespesas,
+        },
+      ],
+      chart: {
+        type: 'area',
+        height: 250,
+        toolbar: { show: false },
+        background: 'transparent',
       },
-      {
-        name: 'Saídas & Despesas',
-        data: [1200, 1850, 950, 2100, 1150, 1400, 980],
+      colors: ['#C9A74E', '#A13D63'],
+      stroke: {
+        curve: 'smooth',
+        width: 3,
       },
-    ],
-    chart: {
-      type: 'area',
-      height: 250,
-      toolbar: { show: false },
-      background: 'transparent',
-    },
-    colors: ['#C9A74E', '#A13D63'],
-    stroke: {
-      curve: 'smooth',
-      width: 3,
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.45,
-        opacityTo: 0.05,
-        stops: [0, 90, 100],
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          opacityFrom: 0.45,
+          opacityTo: 0.05,
+          stops: [0, 90, 100],
+        },
       },
-    },
-    dataLabels: { enabled: false },
-    xaxis: {
-      categories: ['01 AGO', '05 AGO', '10 AGO', '15 AGO', '20 AGO', '25 AGO', '30 AGO'],
-      labels: {
-        style: { colors: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', fontFamily: 'Outfit' },
+      dataLabels: { enabled: false },
+      xaxis: {
+        categories,
+        labels: {
+          style: { colors: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', fontFamily: 'Outfit' },
+        },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
       },
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-    },
-    yaxis: {
-      labels: {
-        style: { colors: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', fontFamily: 'Space Grotesk' },
-        formatter: (val) => `R$ ${val.toLocaleString('pt-BR')}`,
+      yaxis: {
+        labels: {
+          style: { colors: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', fontFamily: 'Space Grotesk' },
+          formatter: (val) => `R$ ${val ? val.toLocaleString('pt-BR') : '0'}`,
+        },
       },
-    },
-    grid: {
-      borderColor: 'rgba(201, 167, 78, 0.1)',
-      strokeDashArray: 4,
-    },
-    tooltip: {
-      theme: 'dark',
-    },
-  };
+      grid: {
+        borderColor: 'rgba(201, 167, 78, 0.1)',
+        strokeDashArray: 4,
+      },
+      tooltip: {
+        theme: 'dark',
+      },
+    };
+  });
 
   atualizarDashboard(): void {
     this.store.carregarDashboard();
