@@ -271,6 +271,8 @@ import { ProjetoReadModel, StatusProjeto } from '../../../core/models/projeto.mo
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .page-title {
@@ -296,6 +298,8 @@ import { ProjetoReadModel, StatusProjeto } from '../../../core/models/projeto.mo
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .summary-label {
@@ -322,9 +326,9 @@ import { ProjetoReadModel, StatusProjeto } from '../../../core/models/projeto.mo
 
     .hero-badges {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .readiness-chip {
@@ -633,6 +637,10 @@ import { ProjetoReadModel, StatusProjeto } from '../../../core/models/projeto.mo
       gap: 8px;
       border-top: 1px solid rgba(216, 184, 126, 0.15);
       padding-top: 12px;
+
+      @media (max-width: 580px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .footer-info-item {

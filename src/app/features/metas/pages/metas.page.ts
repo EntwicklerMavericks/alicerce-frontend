@@ -367,6 +367,10 @@ import { Meta, StatusMeta } from '../../../core/models/meta.models';
       border-top: 1px dashed rgba(216, 184, 126, 0.2);
       padding-top: 12px;
       margin-top: 4px;
+
+      @media (max-width: 580px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .stat-pill {
