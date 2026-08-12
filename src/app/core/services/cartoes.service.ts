@@ -9,11 +9,13 @@ import {
   PagarFaturaRequest,
 } from '../models/cartao.models';
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
 export class CartoesService {
-  private readonly baseUrl = '/api/v1/financeiro';
+  private readonly baseUrl = `${environment.apiUrl}/financeiro`;
 
   constructor(private readonly http: HttpClient) {}
 

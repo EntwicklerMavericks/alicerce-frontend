@@ -8,76 +8,6 @@ import {
   GerarAlertasDto,
 } from '../../../core/models/alertas.models';
 
-const MOCK_ALERTAS_INICIAIS: Alerta[] = [
-  {
-    id: 'alt-1',
-    usuarioId: 'usr-1',
-    workspaceId: 'ws-1',
-    tipo: 'CONTA_VENCENDO',
-    severidade: 'CRITICO',
-    titulo: 'Fatura de Cartão Próxima do Vencimento',
-    mensagem: 'A fatura do Cartão Nubank no valor de R$ 1.850,00 vence amanhã.',
-    tipoReferencia: 'FATURA',
-    referenciaId: 'fat-1',
-    lido: false,
-    dataDisparo: new Date().toISOString(),
-  },
-  {
-    id: 'alt-2',
-    usuarioId: 'usr-1',
-    workspaceId: 'ws-1',
-    tipo: 'ORCAMENTO_EXCEDIDO',
-    severidade: 'CRITICO',
-    titulo: 'Orçamento de Alimentação Ultrapassado',
-    mensagem: 'Você atingiu 112% do limite mensal estipulado para a categoria Alimentação.',
-    tipoReferencia: 'ORCAMENTO',
-    referenciaId: 'orc-1',
-    lido: false,
-    dataDisparo: new Date(Date.now() - 3600000 * 4).toISOString(),
-  },
-  {
-    id: 'alt-3',
-    usuarioId: 'usr-1',
-    workspaceId: 'ws-1',
-    tipo: 'QUEDA_PRECO',
-    severidade: 'ALTO',
-    titulo: 'Queda de Preço em Item da Wishlist',
-    mensagem: 'O produto "Monitor LG 29 Ultrawide" teve queda de preço de 15% na Amazon.',
-    tipoReferencia: 'WISHLIST',
-    referenciaId: 'wish-1',
-    lido: false,
-    dataDisparo: new Date(Date.now() - 3600000 * 12).toISOString(),
-  },
-  {
-    id: 'alt-4',
-    usuarioId: 'usr-1',
-    workspaceId: 'ws-1',
-    tipo: 'META_ATINGIDA',
-    severidade: 'MEDIO',
-    titulo: 'Marco Alcançado em Meta Financeira',
-    mensagem: 'Parabéns! Sua meta "Reserva de Emergência" atingiu mais de 60% do valor total planejado.',
-    tipoReferencia: 'META',
-    referenciaId: 'meta-1',
-    lido: true,
-    dataLeitura: new Date(Date.now() - 3600000 * 24).toISOString(),
-    dataDisparo: new Date(Date.now() - 3600000 * 36).toISOString(),
-  },
-  {
-    id: 'alt-5',
-    usuarioId: 'usr-1',
-    workspaceId: 'ws-1',
-    tipo: 'SALARIO_RECEBIDO',
-    severidade: 'MEDIO',
-    titulo: 'Lançamento de Salário Confirmado',
-    mensagem: 'O salário referente à competência atual foi creditado com sucesso.',
-    tipoReferencia: 'RECEITA',
-    referenciaId: 'rec-1',
-    lido: true,
-    dataLeitura: new Date(Date.now() - 3600000 * 48).toISOString(),
-    dataDisparo: new Date(Date.now() - 3600000 * 72).toISOString(),
-  },
-];
-
 export function getSeveridadeFromTipo(tipo: TipoAlerta): SeveridadeAlerta {
   switch (tipo) {
     case 'CONTA_VENCENDO':
@@ -167,7 +97,7 @@ export class AlertasStore {
         })
       );
 
-      if (result && Array.isArray(result.data) && result.data.length > 0) {
+      if (result && Array.isArray(result.data)) {
         const dadosComSeveridade = result.data.map((a) => ({
           ...a,
           severidade: a.severidade || getSeveridadeFromTipo(a.tipo),
@@ -176,10 +106,10 @@ export class AlertasStore {
         this.totalAlertas.set(result.meta.total);
         this.totalPages.set(result.meta.totalPages);
       } else {
-        this.usarMockLocal();
+        this.usarEstadoVazio();
       }
     } catch (err: any) {
-      this.usarMockLocal();
+      this.usarEstadoVazio();
     } finally {
       this.carregando.set(false);
       this.carregarContagemNaoLidos();
@@ -264,13 +194,9 @@ export class AlertasStore {
     this.carregarAlertas(1);
   }
 
-  private usarMockLocal(): void {
-    const dados = MOCK_ALERTAS_INICIAIS.map((a) => ({
-      ...a,
-      severidade: a.severidade || getSeveridadeFromTipo(a.tipo),
-    }));
-    this.alertas.set(dados);
-    this.totalAlertas.set(dados.length);
+  private usarEstadoVazio(): void {
+    this.alertas.set([]);
+    this.totalAlertas.set(0);
     this.totalPages.set(1);
   }
 }
