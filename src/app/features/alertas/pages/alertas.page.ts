@@ -347,6 +347,10 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
       gap: 8px;
       border-top: 1px dashed rgba(216, 184, 126, 0.2);
       padding-top: 14px;
+
+      @media (max-width: 580px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .hero-stat-pill {

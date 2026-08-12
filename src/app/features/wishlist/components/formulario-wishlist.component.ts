@@ -204,6 +204,10 @@ import { ItemWishlist, PrioridadeWishlist } from '../../../core/models/wishlist.
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
+
+      @media (max-width: 480px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .prio-pill-btn {
@@ -239,6 +243,10 @@ import { ItemWishlist, PrioridadeWishlist } from '../../../core/models/wishlist.
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
+
+      @media (max-width: 480px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .dia-pill-btn {

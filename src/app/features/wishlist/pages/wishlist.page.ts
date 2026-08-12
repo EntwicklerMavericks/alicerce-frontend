@@ -433,6 +433,10 @@ import { ItemWishlist, PrioridadeWishlist } from '../../../core/models/wishlist.
       gap: 8px;
       border-top: 1px dashed rgba(216, 184, 126, 0.2);
       padding-top: 14px;
+
+      @media (max-width: 580px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .hero-stat-pill {
@@ -472,6 +476,11 @@ import { ItemWishlist, PrioridadeWishlist } from '../../../core/models/wishlist.
       gap: 8px;
       overflow-x: auto;
       padding-bottom: 4px;
+      max-width: 100%;
+      box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
     }
 
     .tab-btn {

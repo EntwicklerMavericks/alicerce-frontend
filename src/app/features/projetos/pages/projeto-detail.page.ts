@@ -775,6 +775,10 @@ import {
       background: rgba(0, 0, 0, 0.2);
       padding: 8px 10px;
       border-radius: 10px;
+
+      @media (max-width: 580px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .etapa-metric {
