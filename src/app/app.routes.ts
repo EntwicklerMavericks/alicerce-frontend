@@ -42,6 +42,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/lancamentos/pages/lancamentos.page').then(m => m.LancamentosPage),
       },
       {
+        path: 'categorias',
+        loadComponent: () => import('./features/categorias/pages/categorias.page').then(m => m.CategoriasPage),
+      },
+      {
         path: 'cards',
         loadComponent: () => import('./features/cartoes/pages/cartoes.page').then(m => m.CartoesPage),
       },

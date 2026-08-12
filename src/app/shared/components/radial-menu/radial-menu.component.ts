@@ -466,6 +466,7 @@ export class RadialMenuComponent {
     { id: 'alertas', label: 'Central Alertas', category: 'Notificações', icon: 'notifications', route: '/alertas', color: '#EF4444' },
     { id: 'carteiras', label: 'Carteiras & Contas', category: 'Patrimônio', icon: 'account_balance_wallet', route: '/carteiras', color: '#C9A74E' },
     { id: 'pessoas', label: 'Membros & Salários', category: 'Família', icon: 'group', route: '/pessoas', color: '#60A5FA' },
+    { id: 'categorias', label: 'Categorias', category: 'Classificação', icon: 'category', route: '/categorias', color: '#D8B87E' },
     { id: 'produtos', label: 'Catálogo & Lojas', category: 'Pesquisa', icon: 'shopping_bag', route: '/produtos', color: '#FBBF24' },
   ];
 

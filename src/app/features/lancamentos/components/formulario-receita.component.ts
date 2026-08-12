@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { FluxoCaixaStore } from '../store/fluxo-caixa.store';
 import { CarteirasStore } from '../../carteiras/store/carteiras.store';
+import { CategoriasStore } from '../../categorias/store/categorias.store';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { StatusLiquidacao } from '../../../core/models/lancamento.models';
@@ -61,6 +62,21 @@ import { StatusLiquidacao } from '../../../core/models/lancamento.models';
               required
               class="input-field" />
           </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoriaId">Categoria</label>
+          <select
+            id="categoriaId"
+            [(ngModel)]="categoriaId"
+            name="categoriaId"
+            required
+            class="input-field">
+            <option value="">Selecione uma categoria...</option>
+            @for (cat of categoriasStore.categoriasReceita(); track cat.id) {
+              <option [value]="cat.id">{{ cat.nome }}</option>
+            }
+          </select>
         </div>
 
         <div class="form-group">
@@ -263,6 +279,7 @@ export class FormularioReceitaComponent implements OnInit {
   descricao = '';
   valor: number | null = null;
   data = new Date().toISOString().substring(0, 10);
+  categoriaId = '';
   carteiraId = '';
   statusLiquidacao: StatusLiquidacao = 'LIQUIDADO';
   salvando = signal<boolean>(false);
@@ -270,17 +287,24 @@ export class FormularioReceitaComponent implements OnInit {
   constructor(
     readonly fluxoStore: FluxoCaixaStore,
     readonly carteirasStore: CarteirasStore,
+    readonly categoriasStore: CategoriasStore,
     private readonly overlay: OverlayService,
     private readonly toast: ToastService,
   ) {}
 
   ngOnInit(): void {
     this.carteirasStore.carregarCarteiras();
+    this.categoriasStore.carregarCategorias();
   }
 
   async salvar(): Promise<void> {
     if (!this.descricao || !this.valor || this.valor <= 0) {
       this.toast.showWarning('Informe a descrição e um valor válido.');
+      return;
+    }
+
+    if (!this.categoriaId) {
+      this.toast.showWarning('Selecione uma categoria para a receita.');
       return;
     }
 
@@ -290,7 +314,7 @@ export class FormularioReceitaComponent implements OnInit {
       descricao: this.descricao,
       valor: this.valor,
       data: this.data,
-      categoriaId: 'cat-receita-geral',
+      categoriaId: this.categoriaId,
       carteiraId: this.carteiraId || undefined,
       statusLiquidacao: this.statusLiquidacao,
     });
