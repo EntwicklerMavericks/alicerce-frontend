@@ -25,41 +25,85 @@ export const routes: Routes = [
     loadComponent: () => import('./layouts/app-shell/app-shell.component').then(m => m.AppShellComponent),
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      
+      /* Pilar 1: Início */
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/pages/dashboard.page').then(m => m.DashboardPage),
       },
+
+      /* Pilar 2: Finanças (Hub Operacional com Sub-abas) */
       {
-        path: 'pessoas',
-        loadComponent: () => import('./features/pessoas/pages/pessoas.page').then(m => m.PessoasPage),
+        path: 'financas',
+        loadComponent: () => import('./features/financas/pages/financas-container.page').then(m => m.FinancasContainerPage),
+        children: [
+          { path: '', redirectTo: 'transacoes', pathMatch: 'full' },
+          {
+            path: 'transacoes',
+            loadComponent: () => import('./features/lancamentos/pages/lancamentos.page').then(m => m.LancamentosPage),
+          },
+          {
+            path: 'cartoes',
+            loadComponent: () => import('./features/cartoes/pages/cartoes.page').then(m => m.CartoesPage),
+          },
+          {
+            path: 'carteiras',
+            loadComponent: () => import('./features/carteiras/pages/carteiras.page').then(m => m.CarteirasPage),
+          },
+        ],
       },
+
+      /* Pilar 3: Futuro (Hub de Planejamento Prospectivo com Sub-abas) */
       {
-        path: 'carteiras',
-        loadComponent: () => import('./features/carteiras/pages/carteiras.page').then(m => m.CarteirasPage),
+        path: 'futuro',
+        loadComponent: () => import('./features/futuro/pages/futuro-container.page').then(m => m.FuturoContainerPage),
+        children: [
+          { path: '', redirectTo: 'planning', pathMatch: 'full' },
+          {
+            path: 'planning',
+            loadComponent: () => import('./features/planning/pages/timeline.page').then(m => m.TimelinePage),
+          },
+          {
+            path: 'planning/overview',
+            loadComponent: () => import('./features/planning/pages/planning-overview.page').then(m => m.PlanningOverviewPage),
+          },
+          {
+            path: 'metas',
+            loadComponent: () => import('./features/metas/pages/metas.page').then(m => m.MetasPage),
+          },
+          {
+            path: 'wishlist',
+            loadComponent: () => import('./features/wishlist/pages/wishlist.page').then(m => m.WishlistPage),
+          },
+          {
+            path: 'projetos',
+            loadComponent: () => import('./features/projetos/pages/projetos.page').then(m => m.ProjetosPage),
+          },
+          {
+            path: 'projetos/:id',
+            loadComponent: () => import('./features/projetos/pages/projeto-detail.page').then(m => m.ProjetoDetailPage),
+          },
+          {
+            path: 'orcamentos',
+            loadComponent: () => import('./features/orcamentos/pages/orcamentos.page').then(m => m.OrcamentosPage),
+          },
+        ],
       },
+
+      /* Pilar 4: Mais (Hub Estrutural & Ajustes) */
       {
-        path: 'transactions',
-        loadComponent: () => import('./features/lancamentos/pages/lancamentos.page').then(m => m.LancamentosPage),
+        path: 'mais',
+        loadComponent: () => import('./features/mais/pages/mais-hub.page').then(m => m.MaisHubPage),
       },
+
+      /* Módulos Estruturais e Detalhes */
       {
         path: 'categorias',
         loadComponent: () => import('./features/categorias/pages/categorias.page').then(m => m.CategoriasPage),
       },
       {
-        path: 'cards',
-        loadComponent: () => import('./features/cartoes/pages/cartoes.page').then(m => m.CartoesPage),
-      },
-      {
-        path: 'calendar',
-        loadComponent: () => import('./features/planning/pages/planning-overview.page').then(m => m.PlanningOverviewPage),
-      },
-      {
-        path: 'goals',
-        loadComponent: () => import('./features/metas/pages/metas.page').then(m => m.MetasPage),
-      },
-      {
-        path: 'orcamentos',
-        loadComponent: () => import('./features/orcamentos/pages/orcamentos.page').then(m => m.OrcamentosPage),
+        path: 'pessoas',
+        loadComponent: () => import('./features/pessoas/pages/pessoas.page').then(m => m.PessoasPage),
       },
       {
         path: 'products',
@@ -70,26 +114,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/produtos/pages/produto-detail.page').then(m => m.ProdutoDetailPage),
       },
       {
-        path: 'wishlist',
-        loadComponent: () => import('./features/wishlist/pages/wishlist.page').then(m => m.WishlistPage),
-      },
-      {
-        path: 'projects',
-        loadComponent: () => import('./features/projetos/pages/projetos.page').then(m => m.ProjetosPage),
-      },
-      {
-        path: 'projects/:id',
-        loadComponent: () => import('./features/projetos/pages/projeto-detail.page').then(m => m.ProjetoDetailPage),
-      },
-      {
-        path: 'planning/overview',
-        loadComponent: () => import('./features/planning/pages/planning-overview.page').then(m => m.PlanningOverviewPage),
-      },
-      {
-        path: 'planning',
-        loadComponent: () => import('./features/planning/pages/timeline.page').then(m => m.TimelinePage),
-      },
-      {
         path: 'alertas',
         loadComponent: () => import('./features/alertas/pages/alertas.page').then(m => m.AlertasPage),
       },
@@ -97,10 +121,20 @@ export const routes: Routes = [
         path: 'relatorios',
         loadComponent: () => import('./features/relatorios/pages/relatorios.page').then(m => m.RelatoriosPage),
       },
-      {
-        path: 'menu',
-        loadComponent: () => import('./features/pessoas/pages/pessoas.page').then(m => m.PessoasPage),
-      },
+
+      /* Redirecionamentos de Compatibilidade para Preservar Bookmarks Legados */
+      { path: 'transactions', redirectTo: 'financas/transacoes', pathMatch: 'full' },
+      { path: 'cards', redirectTo: 'financas/cartoes', pathMatch: 'full' },
+      { path: 'carteiras', redirectTo: 'financas/carteiras', pathMatch: 'full' },
+      { path: 'calendar', redirectTo: 'futuro/planning', pathMatch: 'full' },
+      { path: 'planning', redirectTo: 'futuro/planning', pathMatch: 'full' },
+      { path: 'planning/overview', redirectTo: 'futuro/planning/overview', pathMatch: 'full' },
+      { path: 'goals', redirectTo: 'futuro/metas', pathMatch: 'full' },
+      { path: 'wishlist', redirectTo: 'futuro/wishlist', pathMatch: 'full' },
+      { path: 'projects', redirectTo: 'futuro/projetos', pathMatch: 'full' },
+      { path: 'projects/:id', redirectTo: 'futuro/projetos/:id', pathMatch: 'full' },
+      { path: 'orcamentos', redirectTo: 'futuro/orcamentos', pathMatch: 'full' },
+      { path: 'menu', redirectTo: 'mais', pathMatch: 'full' },
     ],
   },
   { path: '**', redirectTo: 'dashboard' },

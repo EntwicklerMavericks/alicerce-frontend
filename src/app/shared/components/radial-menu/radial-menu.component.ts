@@ -1,18 +1,21 @@
 import { Component, inject, signal, computed, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { HapticsService } from '../../../core/platform/haptics.service';
-import { FabActionRegistryService } from '../../../core/services/fab-action-registry.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { OverlayService } from '../../../core/services/overlay.service';
+import { FormularioDespesaComponent } from '../../../features/lancamentos/components/formulario-despesa.component';
+import { FormularioReceitaComponent } from '../../../features/lancamentos/components/formulario-receita.component';
+import { FormularioCompraCartaoComponent } from '../../../features/cartoes/components/formulario-compra-cartao.component';
+import { FormularioMetaComponent } from '../../../features/metas/components/formulario-meta.component';
+import { FormularioProjetoComponent } from '../../../features/projetos/components/formulario-projeto.component';
+import { FormularioWishlistComponent } from '../../../features/wishlist/components/formulario-wishlist.component';
 
 export interface RadialMenuItem {
   id: string;
   label: string;
   category: string;
   icon: string;
-  route?: string;
   color: string;
-  isAction?: boolean;
+  component: any;
 }
 
 @Component({
@@ -27,15 +30,15 @@ export interface RadialMenuItem {
         class="radial-trigger-btn"
         [class.active]="isOpen()"
         (click)="toggleMenu()"
-        title="Navegação Geral em Roda Semicircular"
-        aria-label="Abrir Menu Semicircular"
+        title="Ações Rápidas em Roda Rotativa"
+        aria-label="Abrir Roda de Ações"
       >
         <div class="glow-effect"></div>
         <span class="material-symbols-rounded trigger-icon">
-          {{ isOpen() ? 'close' : 'apps' }}
+          {{ isOpen() ? 'close' : 'add' }}
         </span>
       </button>
-      <span class="trigger-label">{{ isOpen() ? 'Fechar' : 'Explorar' }}</span>
+      <span class="trigger-label">{{ isOpen() ? 'Fechar' : 'Criar' }}</span>
     </div>
 
     <!-- Backdrop Translúcido com Blur Suave -->
@@ -46,7 +49,7 @@ export interface RadialMenuItem {
         (click)="closeMenu()"
         (window:keydown.escape)="closeMenu()"
       >
-        <!-- Container Semicircular -->
+        <!-- Container Flutuante da Roleta Perfeitamente Simétrica -->
         <div
           #wheelContainer
           class="wheel-modal-container"
@@ -57,26 +60,31 @@ export interface RadialMenuItem {
           (touchend)="onTouchEnd()"
           (mousedown)="onMouseDown($event)"
         >
-          <!-- Título da Categoria / Item Ativo -->
+          <!-- Título Interativo / Botão de Ação Ativo -->
           <div class="wheel-header">
-            <span class="wheel-subtitle">DESLIZE O DEDO PARA GIRAR A RODA DE OPÇÕES</span>
-            <div class="active-item-badge" [style.border-color]="activeItem().color">
+            <span class="wheel-subtitle">DESLIZE A ROLETA OU TOQUE NO ÍCONE DESTACADO PARA CRIAR</span>
+            <div
+              class="active-item-badge"
+              [style.border-color]="activeItem().color"
+              (click)="confirmSelection()"
+              title="Clique para criar"
+            >
               <span class="material-symbols-rounded active-icon" [style.color]="activeItem().color">
                 {{ activeItem().icon }}
               </span>
-              <span class="active-title">{{ activeItem().label }}</span>
+              <span class="active-title">Criar {{ activeItem().label }}</span>
+              <span class="material-symbols-rounded click-arrow">arrow_forward</span>
             </div>
-            <span class="category-tag">{{ activeItem().category }}</span>
           </div>
 
-          <!-- Arco Semicircular do Dial Rotativo -->
+          <!-- Roleta Circular 100% Simétrica -->
           <div class="wheel-dial-wrapper">
-            <!-- Marcador/Indicador Central Superior -->
+            <!-- Indicador de Seta no Topo (12 horas) -->
             <div class="dial-center-pointer">
               <span class="material-symbols-rounded">arrow_drop_down</span>
             </div>
 
-            <!-- Roda Rotativa -->
+            <!-- Círculo Rotativo Perfeito -->
             <div
               class="wheel-dial"
               [style.transform]="'rotate(' + rotationAngle() + 'deg)'"
@@ -91,8 +99,9 @@ export interface RadialMenuItem {
                 >
                   <div
                     class="node-icon-box"
+                    [class.center-active]="index === selectedIndex()"
                     [style.background]="getNodeBackground(item, index === selectedIndex())"
-                    [style.transform]="'rotate(' + (-rotationAngle()) + 'deg)'"
+                    [style.transform]="'rotate(' + (-rotationAngle()) + 'deg) ' + (index === selectedIndex() ? 'scale(1.35)' : 'scale(1)')"
                   >
                     <span class="material-symbols-rounded" [style.color]="index === selectedIndex() ? '#2A0B12' : item.color">
                       {{ item.icon }}
@@ -102,12 +111,6 @@ export interface RadialMenuItem {
               }
             </div>
           </div>
-
-          <!-- Ação Rápida / Confirmação de Acesso -->
-          <button type="button" class="action-confirm-btn" (click)="confirmSelection()">
-            <span class="material-symbols-rounded">{{ activeItem().isAction ? 'add_circle' : 'arrow_forward' }}</span>
-            <span class="btn-text">{{ activeItem().isAction ? 'Criar ' + activeItem().label.replace('+ ', '') : 'Acessar ' + activeItem().label }}</span>
-          </button>
         </div>
       </div>
     }
@@ -172,7 +175,7 @@ export interface RadialMenuItem {
       }
 
       .trigger-icon {
-        font-size: 28px;
+        font-size: 30px;
         font-weight: 700;
         z-index: 2;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
@@ -194,7 +197,6 @@ export interface RadialMenuItem {
       text-shadow: 0 0 8px rgba(201, 167, 78, 0.5);
     }
 
-    /* Backdrop Translúcido com Blur Suave */
     .radial-backdrop {
       position: fixed;
       top: 0;
@@ -204,9 +206,9 @@ export interface RadialMenuItem {
       width: 100vw;
       height: 100vh;
       height: 100dvh;
-      background: rgba(24, 7, 10, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(18, 5, 8, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 99999;
       display: flex;
       flex-direction: column;
@@ -233,16 +235,14 @@ export interface RadialMenuItem {
     .wheel-modal-container {
       width: 100%;
       max-width: 480px;
-      background: linear-gradient(180deg, rgba(42, 11, 18, 0.98) 0%, rgba(13, 4, 6, 0.99) 100%);
-      border-top-left-radius: 36px;
-      border-top-right-radius: 36px;
-      border-top: 1.5px solid rgba(201, 167, 78, 0.6);
-      padding: 24px 20px calc(24px + var(--sab)) 20px;
+      background: transparent;
+      border: none;
+      padding: 24px 20px calc(40px + var(--sab)) 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 16px;
-      box-shadow: 0 -15px 50px rgba(161, 61, 99, 0.4), 0 -2px 20px rgba(201, 167, 78, 0.3);
+      box-shadow: none;
       user-select: none;
       touch-action: none;
       animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -267,7 +267,7 @@ export interface RadialMenuItem {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       text-align: center;
     }
 
@@ -283,69 +283,74 @@ export interface RadialMenuItem {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: linear-gradient(135deg, rgba(58, 15, 25, 0.9) 0%, rgba(20, 5, 8, 0.95) 100%);
+      background: linear-gradient(135deg, rgba(58, 15, 25, 0.95) 0%, rgba(20, 5, 8, 0.98) 100%);
       border: 1.5px solid #C9A74E;
-      padding: 8px 20px;
+      padding: 10px 22px;
       border-radius: 99px;
       box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(201, 167, 78, 0.3);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+
+      &:hover, &:active {
+        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(201, 167, 78, 0.5);
+      }
+
+      .active-icon {
+        font-size: 26px;
+        filter: drop-shadow(0 0 6px rgba(201, 167, 78, 0.6));
+      }
+
+      .active-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #FFF;
+        letter-spacing: 0.5px;
+      }
+
+      .click-arrow {
+        font-size: 18px;
+        color: rgba(235, 217, 182, 0.7);
+        margin-left: 2px;
+      }
     }
 
-    .active-icon {
-      font-size: 26px;
-      filter: drop-shadow(0 0 6px rgba(201, 167, 78, 0.6));
-    }
-
-    .active-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: #FFF;
-      letter-spacing: 0.8px;
-      font-family: var(--alic-font-family-primary);
-    }
-
-    .category-tag {
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      color: rgba(232, 211, 158, 0.7);
-      text-transform: uppercase;
-    }
-
-    /* Dial Rotativo sem Pontilhado */
     .wheel-dial-wrapper {
       position: relative;
-      width: 340px;
-      height: 210px;
+      width: 280px;
+      height: 280px;
       display: flex;
       justify-content: center;
-      align-items: flex-end;
-      overflow: hidden;
-      margin-top: 6px;
+      align-items: center;
+      overflow: visible;
     }
 
     .dial-center-pointer {
       position: absolute;
-      top: -2px;
+      top: -24px;
       left: 50%;
       transform: translateX(-50%);
-      color: #E8D39E;
       z-index: 10;
+      color: #C9A74E;
+      filter: drop-shadow(0 2px 8px rgba(201, 167, 78, 0.8));
+
       span {
-        font-size: 34px;
-        filter: drop-shadow(0 2px 10px #C9A74E) drop-shadow(0 0 15px rgba(201, 167, 78, 0.8));
+        font-size: 26px;
       }
     }
 
     .wheel-dial {
-      position: absolute;
-      bottom: -175px;
-      width: 350px;
-      height: 350px;
+      position: relative;
+      width: 260px;
+      height: 260px;
       border-radius: 50%;
       border: none;
+      background: transparent;
       box-shadow: none;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
       &.dragging {
         transition: none;
@@ -356,81 +361,48 @@ export interface RadialMenuItem {
       position: absolute;
       top: 50%;
       left: 50%;
-      margin-top: -21px;
-      margin-left: -21px;
-      width: 42px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin-top: -24px;
+      margin-left: -24px;
+      width: 48px;
+      height: 48px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 
       &.highlighted {
-        transform: scale(1.35) !important;
-        z-index: 10;
+        z-index: 12;
       }
     }
 
     .node-icon-box {
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      border: 1px solid rgba(201, 167, 78, 0.4);
+      border: 1.5px solid rgba(201, 167, 78, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15);
-      transition: transform 0.1s linear, background 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, box-shadow 0.25s ease;
 
       span {
-        font-size: 20px;
+        font-size: 22px;
         filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
       }
-    }
 
-    .action-confirm-btn {
-      width: 100%;
-      height: 48px;
-      min-height: 48px;
-      padding: 0 18px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #A13D63 0%, #68203B 100%);
-      border: 1.5px solid rgba(201, 167, 78, 0.5);
-      color: #FFF;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      cursor: pointer;
-      box-shadow: 0 8px 25px rgba(161, 61, 99, 0.45), 0 2px 10px rgba(201, 167, 78, 0.2);
-      transition: all 0.2s ease;
-      box-sizing: border-box;
+      &.center-active {
+        box-shadow: 0 0 35px rgba(201, 167, 78, 0.95), 0 6px 20px rgba(0, 0, 0, 0.7);
+        border-color: #FFF;
 
-      &:active {
-        transform: scale(0.98);
-        box-shadow: 0 4px 15px rgba(161, 61, 99, 0.6);
-      }
-
-      span { font-size: 18px; flex-shrink: 0; }
-
-      .btn-text {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 14px;
+        span {
+          font-size: 26px;
+        }
       }
     }
   `],
 })
 export class RadialMenuComponent {
-  private readonly router = inject(Router);
   private readonly haptics = inject(HapticsService);
-  private readonly fabRegistry = inject(FabActionRegistryService);
-  private readonly toastService = inject(ToastService);
+  private readonly overlay = inject(OverlayService);
 
   @ViewChild('wheelContainer') wheelContainer?: ElementRef<HTMLDivElement>;
 
@@ -444,30 +416,54 @@ export class RadialMenuComponent {
   private startAngle = 0;
 
   readonly items: RadialMenuItem[] = [
-    // --- Ações Rápidas de Criação ---
-    { id: 'nova-despesa', label: '+ Nova Despesa', category: 'Criação Rápida', icon: 'arrow_downward', route: '/transactions', color: '#F87171', isAction: true },
-    { id: 'nova-receita', label: '+ Nova Receita', category: 'Criação Rápida', icon: 'arrow_upward', route: '/transactions', color: '#34D399', isAction: true },
-    { id: 'nova-meta', label: '+ Nova Meta', category: 'Criação Rápida', icon: 'flag', route: '/goals', color: '#C9A74E', isAction: true },
-    { id: 'novo-projeto', label: '+ Novo Projeto', category: 'Criação Rápida', icon: 'account_tree', route: '/projects', color: '#F59E0B', isAction: true },
-    { id: 'novo-desejo', label: '+ Novo Desejo', category: 'Criação Rápida', icon: 'favorite', route: '/wishlist', color: '#EC4899', isAction: true },
-
-    // --- Módulos Principais ---
-    { id: 'dashboard', label: 'Dashboard', category: 'Visão Geral', icon: 'grid_view', route: '/dashboard', color: '#C9A74E' },
-    { id: 'transactions', label: 'Lançamentos', category: 'Gestão Financeira', icon: 'receipt_long', route: '/transactions', color: '#34D399' },
-    { id: 'cards', label: 'Cartões & Faturas', category: 'Crédito', icon: 'credit_card', route: '/cards', color: '#E8D39E' },
-    { id: 'calendar', label: 'Calendário', category: 'Agenda', icon: 'calendar_month', route: '/calendar', color: '#F472B6' },
-    { id: 'orcamentos', label: 'Orçamentos', category: 'Planejamento', icon: 'pie_chart', route: '/orcamentos', color: '#A13D63' },
-    { id: 'goals', label: 'Metas & Sonhos', category: 'Objetivos', icon: 'flag', route: '/goals', color: '#C9A74E' },
-    { id: 'wishlist', label: 'Wishlist & Desejos', category: 'Consumo Consciente', icon: 'favorite', route: '/wishlist', color: '#EC4899' },
-    { id: 'projects', label: 'Projetos', category: 'Longo Prazo', icon: 'account_tree', route: '/projects', color: '#F59E0B' },
-    { id: 'planning', label: 'Forecast 12M', category: 'Projeção', icon: 'timeline', route: '/planning', color: '#A855F7' },
-    { id: 'overview', label: 'Planning Overview', category: 'Executivo', icon: 'insights', route: '/planning/overview', color: '#C9A74E' },
-    { id: 'relatorios', label: 'Relatórios Executivos', category: 'Auditoria', icon: 'bar_chart', route: '/relatorios', color: '#10B981' },
-    { id: 'alertas', label: 'Central Alertas', category: 'Notificações', icon: 'notifications', route: '/alertas', color: '#EF4444' },
-    { id: 'carteiras', label: 'Carteiras & Contas', category: 'Patrimônio', icon: 'account_balance_wallet', route: '/carteiras', color: '#C9A74E' },
-    { id: 'pessoas', label: 'Membros & Salários', category: 'Família', icon: 'group', route: '/pessoas', color: '#60A5FA' },
-    { id: 'categorias', label: 'Categorias', category: 'Classificação', icon: 'category', route: '/categorias', color: '#D8B87E' },
-    { id: 'produtos', label: 'Catálogo & Lojas', category: 'Pesquisa', icon: 'shopping_bag', route: '/produtos', color: '#FBBF24' },
+    {
+      id: 'despesa',
+      label: 'Despesa',
+      category: 'Criação Rápida',
+      icon: 'arrow_downward',
+      color: '#ef4444',
+      component: FormularioDespesaComponent,
+    },
+    {
+      id: 'receita',
+      label: 'Receita',
+      category: 'Criação Rápida',
+      icon: 'arrow_upward',
+      color: '#10b981',
+      component: FormularioReceitaComponent,
+    },
+    {
+      id: 'compra-cartao',
+      label: 'Compra Cartão',
+      category: 'Criação Rápida',
+      icon: 'credit_card',
+      color: '#f59e0b',
+      component: FormularioCompraCartaoComponent,
+    },
+    {
+      id: 'meta',
+      label: 'Meta / Sonho',
+      category: 'Criação Rápida',
+      icon: 'flag',
+      color: '#d8b87e',
+      component: FormularioMetaComponent,
+    },
+    {
+      id: 'projeto',
+      label: 'Novo Projeto',
+      category: 'Criação Rápida',
+      icon: 'account_tree',
+      color: '#8b5cf6',
+      component: FormularioProjetoComponent,
+    },
+    {
+      id: 'desejo',
+      label: 'Novo Desejo',
+      category: 'Criação Rápida',
+      icon: 'favorite',
+      color: '#ec4899',
+      component: FormularioWishlistComponent,
+    },
   ];
 
   readonly activeItem = computed(() => this.items[this.selectedIndex()]);
@@ -494,6 +490,10 @@ export class RadialMenuComponent {
   }
 
   selectItem(item: RadialMenuItem, index: number): void {
+    if (index === this.selectedIndex()) {
+      this.confirmSelection();
+      return;
+    }
     this.haptics.impactLight();
     this.selectedIndex.set(index);
     this.rotationAngle.set(-index * (360 / this.items.length));
@@ -503,29 +503,19 @@ export class RadialMenuComponent {
     const target = this.activeItem();
     this.haptics.impactMedium();
     this.closeMenu();
-
-    if (target.isAction) {
-      // Se for ação rápida de criação
-      const registeredActions = this.fabRegistry.registeredActions();
-      const matched = registeredActions.find((a) => a.id === target.id);
-      if (matched && matched.execute) {
-        matched.execute();
-      } else if (target.route) {
-        this.router.navigate([target.route]);
-      }
-    } else if (target.route) {
-      this.router.navigate([target.route]);
-    }
+    setTimeout(() => {
+      this.overlay.openBottomSheet({ component: target.component });
+    }, 150);
   }
 
   getNodeTransform(index: number): string {
     const angleStep = 360 / this.items.length;
     const itemAngle = index * angleStep;
-    const radius = 150; // Raio em pixels
+    const radius = 105;
     const rad = (itemAngle - 90) * (Math.PI / 180);
     const x = Math.cos(rad) * radius;
     const y = Math.sin(rad) * radius;
-    return `translate(${x}px, ${y}px)`;
+    return `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
   }
 
   getNodeBackground(item: RadialMenuItem, isSelected: boolean): string {

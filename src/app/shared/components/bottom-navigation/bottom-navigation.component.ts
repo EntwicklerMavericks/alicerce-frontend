@@ -10,27 +10,31 @@ import { RadialMenuComponent } from '../radial-menu/radial-menu.component';
   imports: [CommonModule, RouterLink, RouterLinkActive, RadialMenuComponent],
   template: `
     <nav class="bottom-nav">
+      <!-- 1. Início -->
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
         <span class="material-symbols-rounded nav-icon">grid_view</span>
-        <span class="nav-label">Dashboard</span>
+        <span class="nav-label">Início</span>
       </a>
 
-      <a routerLink="/transactions" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
-        <span class="material-symbols-rounded nav-icon">receipt_long</span>
-        <span class="nav-label">Lançamentos</span>
+      <!-- 2. Finanças -->
+      <a routerLink="/financas" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
+        <span class="material-symbols-rounded nav-icon">account_balance_wallet</span>
+        <span class="nav-label">Finanças</span>
       </a>
 
-      <!-- Botão Central Radial Rotativo Semicircular -->
+      <!-- 3. Botão Central Radial Rotativo Semicircular -->
       <app-radial-menu></app-radial-menu>
 
-      <a routerLink="/calendar" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
-        <span class="material-symbols-rounded nav-icon">calendar_month</span>
-        <span class="nav-label">Calendário</span>
+      <!-- 4. Futuro -->
+      <a routerLink="/futuro" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
+        <span class="material-symbols-rounded nav-icon">rocket_launch</span>
+        <span class="nav-label">Futuro</span>
       </a>
 
-      <a routerLink="/goals" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
-        <span class="material-symbols-rounded nav-icon">flag</span>
-        <span class="nav-label">Metas</span>
+      <!-- 5. Mais -->
+      <a routerLink="/mais" routerLinkActive="active" class="nav-item" (click)="onTabClick()">
+        <span class="material-symbols-rounded nav-icon">widgets</span>
+        <span class="nav-label">Mais</span>
       </a>
     </nav>
   `,
@@ -87,7 +91,7 @@ import { RadialMenuComponent } from '../radial-menu/radial-menu.component';
           width: 4px;
           height: 4px;
           border-radius: 50%;
-          background: var(--alic-color-gold-main);
+          background: var(--alic-color-gold-main, #d8b87e);
           box-shadow: 0 0 8px #d8b87e;
           margin-top: 2px;
         }

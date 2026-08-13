@@ -12,6 +12,7 @@ export class UserContextService {
   readonly currentWorkspace = computed<WorkspaceResumo | null>(() => this.authStore.workspaceAtivo());
 
   readonly userName = computed(() => this.currentUser()?.nome || 'Usuário');
+  readonly userEmail = computed(() => this.currentUser()?.email || '');
   readonly workspaceName = computed(() => this.currentWorkspace()?.nome || 'Workspace Principal');
   readonly avatarInitial = computed(() => this.userName().charAt(0).toUpperCase());
 }
