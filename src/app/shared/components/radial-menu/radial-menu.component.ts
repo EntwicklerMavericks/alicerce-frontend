@@ -49,12 +49,11 @@ export interface RadialMenuItem {
         (click)="closeMenu()"
         (window:keydown.escape)="closeMenu()"
       >
-        <!-- Container Flutuante da Roleta Perfeitamente Simétrica -->
+        <!-- Container Flutuante da Roleta -->
         <div
           #wheelContainer
           class="wheel-modal-container"
           [class.closing]="isClosing()"
-          (click)="$event.stopPropagation()"
           (touchstart)="onTouchStart($event)"
           (touchmove)="onTouchMove($event)"
           (touchend)="onTouchEnd()"
@@ -66,7 +65,7 @@ export interface RadialMenuItem {
             <div
               class="active-item-badge"
               [style.border-color]="activeItem().color"
-              (click)="confirmSelection()"
+              (click)="onBadgeClick($event)"
               title="Clique para criar"
             >
               <span class="material-symbols-rounded active-icon" [style.color]="activeItem().color">
@@ -77,7 +76,7 @@ export interface RadialMenuItem {
             </div>
           </div>
 
-          <!-- Roleta Circular 100% Simétrica -->
+          <!-- Roleta Circular -->
           <div class="wheel-dial-wrapper">
             <!-- Indicador de Seta no Topo (12 horas) -->
             <div class="dial-center-pointer">
@@ -95,7 +94,7 @@ export interface RadialMenuItem {
                   class="wheel-node"
                   [class.highlighted]="index === selectedIndex()"
                   [style.transform]="getNodeTransform(index)"
-                  (click)="selectItem(item, index)"
+                  (click)="onNodeClick($event, item, index)"
                 >
                   <div
                     class="node-icon-box"
@@ -489,6 +488,16 @@ export class RadialMenuComponent {
     }, 200);
   }
 
+  onBadgeClick(event: MouseEvent): void {
+    event.stopPropagation();
+    this.confirmSelection();
+  }
+
+  onNodeClick(event: MouseEvent, item: RadialMenuItem, index: number): void {
+    event.stopPropagation();
+    this.selectItem(item, index);
+  }
+
   selectItem(item: RadialMenuItem, index: number): void {
     if (index === this.selectedIndex()) {
       this.confirmSelection();
@@ -525,21 +534,21 @@ export class RadialMenuComponent {
     return 'linear-gradient(135deg, rgba(42, 11, 18, 0.95) 0%, rgba(18, 5, 8, 0.98) 100%)';
   }
 
-  /* Gestos de Touch / Mouse Drag */
+  private centerX = 0;
+  private centerY = 0;
+  private startTouchAngle = 0;
+  private startRotationAngle = 0;
+
+  /* Gestos de Touch / Mouse Drag com Rastreamento Polar 360° Omnidirecional */
   onTouchStart(event: TouchEvent): void {
     if (event.touches.length > 0) {
-      this.isDragging.set(true);
-      this.startX = event.touches[0].clientX;
-      this.startAngle = this.rotationAngle();
+      this.initDrag(event.touches[0].clientX, event.touches[0].clientY);
     }
   }
 
   onTouchMove(event: TouchEvent): void {
     if (!this.isDragging() || event.touches.length === 0) return;
-    const deltaX = event.touches[0].clientX - this.startX;
-    const newAngle = this.startAngle + deltaX * 0.6;
-    this.rotationAngle.set(newAngle);
-    this.updateActiveIndexFromAngle(newAngle);
+    this.updateDrag(event.touches[0].clientX, event.touches[0].clientY);
   }
 
   onTouchEnd(): void {
@@ -550,18 +559,13 @@ export class RadialMenuComponent {
   }
 
   onMouseDown(event: MouseEvent): void {
-    this.isDragging.set(true);
-    this.startX = event.clientX;
-    this.startAngle = this.rotationAngle();
+    this.initDrag(event.clientX, event.clientY);
   }
 
   @HostListener('window:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     if (!this.isDragging()) return;
-    const deltaX = event.clientX - this.startX;
-    const newAngle = this.startAngle + deltaX * 0.6;
-    this.rotationAngle.set(newAngle);
-    this.updateActiveIndexFromAngle(newAngle);
+    this.updateDrag(event.clientX, event.clientY);
   }
 
   @HostListener('window:mouseup')
@@ -570,6 +574,34 @@ export class RadialMenuComponent {
       this.isDragging.set(false);
       this.snapToNearest();
     }
+  }
+
+  private initDrag(x: number, y: number): void {
+    this.isDragging.set(true);
+    if (this.wheelContainer?.nativeElement) {
+      const rect = this.wheelContainer.nativeElement.getBoundingClientRect();
+      this.centerX = rect.left + rect.width / 2;
+      this.centerY = rect.top + rect.height / 2;
+    } else {
+      this.centerX = window.innerWidth / 2;
+      this.centerY = window.innerHeight / 2;
+    }
+    const rad = Math.atan2(y - this.centerY, x - this.centerX);
+    this.startTouchAngle = rad * (180 / Math.PI);
+    this.startRotationAngle = this.rotationAngle();
+  }
+
+  private updateDrag(x: number, y: number): void {
+    const rad = Math.atan2(y - this.centerY, x - this.centerX);
+    const currentTouchAngle = rad * (180 / Math.PI);
+    let deltaAngle = currentTouchAngle - this.startTouchAngle;
+
+    while (deltaAngle > 180) deltaAngle -= 360;
+    while (deltaAngle < -180) deltaAngle += 360;
+
+    const newAngle = this.startRotationAngle + deltaAngle;
+    this.rotationAngle.set(newAngle);
+    this.updateActiveIndexFromAngle(newAngle);
   }
 
   private updateActiveIndexFromAngle(angle: number): void {
