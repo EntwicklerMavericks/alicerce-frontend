@@ -302,15 +302,21 @@ export class FormularioMetaComponent implements OnInit {
           this.overlayService.close({ saved: true });
         }
       } else {
-        const ok = await this.metasStore.criarMeta({
+        const valorInicialNum = Number(val.valorInicial || 0);
+        const dtoPayload: any = {
           nome: val.nome,
           descricao: val.descricao,
           valorAlvo: Number(val.valorAlvo),
-          valorInicial: Number(val.valorInicial || 0),
           prazo: val.prazo,
           icone: val.icone,
           cor: val.cor,
-        });
+        };
+
+        if (valorInicialNum > 0) {
+          dtoPayload.valorInicial = valorInicialNum;
+        }
+
+        const ok = await this.metasStore.criarMeta(dtoPayload);
 
         if (ok) {
           this.toastService.showSuccess(`Meta "${val.nome}" criada com sucesso!`);

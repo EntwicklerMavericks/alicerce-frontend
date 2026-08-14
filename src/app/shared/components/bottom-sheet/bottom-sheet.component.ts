@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { HapticsService } from '../../../core/platform/haptics.service';
@@ -16,26 +16,30 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       ></div>
 
       <div
-        class="bottom-sheet-container animate-slide-up"
+        #sheetContainer
+        class="bottom-sheet-container sheet-enter"
         [class.dragging]="isDragging()"
-        [style.transform]="dragY() > 0 ? 'translateY(' + dragY() + 'px)' : 'none'"
-        (touchstart)="onTouchStart($event)"
-        (touchmove)="onTouchMove($event)"
-        (touchend)="onTouchEnd()"
-        (mousedown)="onMouseDown($event)"
+        [style.transform]="dragY() > 0 ? 'translateY(' + dragY() + 'px)' : ''"
       >
-        <div class="drag-handle-wrapper" (click)="onHandleClick()">
-          <div class="drag-handle"></div>
-        </div>
-
-        @if (overlayService.activeOverlay()?.title) {
-          <div class="sheet-header">
-            <h3 class="sheet-title">{{ overlayService.activeOverlay()?.title }}</h3>
-            <button class="close-btn" (click)="close()">
-              <span class="material-symbols-rounded">close</span>
-            </button>
+        <!-- Área Arrastável: Handle + Header -->
+        <div
+          class="drag-zone"
+          (mousedown)="onDragZoneMouseDown($event)"
+          (touchstart)="onDragZoneTouchStart($event)"
+        >
+          <div class="drag-handle-wrapper">
+            <div class="drag-handle"></div>
           </div>
-        }
+
+          @if (overlayService.activeOverlay()?.title) {
+            <div class="sheet-header">
+              <h3 class="sheet-title">{{ overlayService.activeOverlay()?.title }}</h3>
+              <button class="close-btn" (click)="close(); $event.stopPropagation()">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            </div>
+          }
+        </div>
 
         <div class="sheet-body">
           <ng-container *ngComponentOutlet="overlayService.activeOverlay()!.component"></ng-container>
@@ -65,18 +69,33 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       border-top-right-radius: 28px;
       border-top: 1px solid rgba(216, 184, 126, 0.35);
       box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
-      padding: 12px 20px calc(20px + var(--sab)) 20px;
+      padding: 0 20px calc(20px + var(--sab)) 20px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
       box-sizing: border-box;
       width: 100%;
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      user-select: none;
+
+      &.sheet-enter {
+        animation: sheetSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
 
       &.dragging {
         transition: none;
+        animation: none;
+        overflow: hidden;
+      }
+    }
+
+    .drag-zone {
+      flex-shrink: 0;
+      cursor: grab;
+      user-select: none;
+      padding: 12px 0 0 0;
+
+      &:active {
+        cursor: grabbing;
       }
     }
 
@@ -85,12 +104,6 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       display: flex;
       justify-content: center;
       padding: 8px 0 14px 0;
-      cursor: grab;
-      flex-shrink: 0;
-
-      &:active {
-        cursor: grabbing;
-      }
     }
 
     .drag-handle {
@@ -106,12 +119,6 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       align-items: center;
       justify-content: space-between;
       margin-bottom: 16px;
-      flex-shrink: 0;
-      cursor: grab;
-
-      &:active {
-        cursor: grabbing;
-      }
     }
 
     .sheet-title {
@@ -137,11 +144,18 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       width: 100%;
       box-sizing: border-box;
     }
+
+    @keyframes sheetSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
   `],
 })
 export class BottomSheetComponent {
   readonly overlayService = inject(OverlayService);
   private readonly haptics = inject(HapticsService);
+
+  @ViewChild('sheetContainer') sheetContainer?: ElementRef<HTMLDivElement>;
 
   readonly dragY = signal<number>(0);
   readonly isDragging = signal<boolean>(false);
@@ -155,96 +169,88 @@ export class BottomSheetComponent {
     return Math.max(0.1, 1 - drag / 300);
   });
 
-  onTouchStart(event: TouchEvent): void {
+  /* ---- Touch (mobile) ---- */
+  onDragZoneTouchStart(event: TouchEvent): void {
     if (event.touches.length > 0) {
-      this.startDrag(event.touches[0].clientY, event.target as HTMLElement);
+      this.isPointerDown = true;
+      this.startY = event.touches[0].clientY;
+      this.dragY.set(0);
     }
   }
 
+  @HostListener('window:touchmove', ['$event'])
   onTouchMove(event: TouchEvent): void {
-    if (this.isPointerDown && event.touches.length > 0) {
-      this.moveDrag(event.touches[0].clientY, event);
-    }
+    if (!this.isPointerDown || event.touches.length === 0) return;
+    this.handleMove(event.touches[0].clientY, event);
   }
 
+  @HostListener('window:touchend')
   onTouchEnd(): void {
-    this.endDrag();
+    if (this.isPointerDown) {
+      this.handleEnd();
+    }
   }
 
-  onMouseDown(event: MouseEvent): void {
-    if (event.button === 0) {
-      this.startDrag(event.clientY, event.target as HTMLElement);
-    }
+  /* ---- Mouse (desktop) ---- */
+  onDragZoneMouseDown(event: MouseEvent): void {
+    if (event.button !== 0) return;
+    // Não capturar cliques no botão de fechar
+    const target = event.target as HTMLElement;
+    if (target.closest('.close-btn')) return;
+
+    event.preventDefault(); // Impede seleção de texto e comportamento padrão do browser
+    this.isPointerDown = true;
+    this.startY = event.clientY;
+    this.dragY.set(0);
   }
 
   @HostListener('window:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
-    if (this.isPointerDown) {
-      this.moveDrag(event.clientY, event);
-    }
+    if (!this.isPointerDown) return;
+    this.handleMove(event.clientY, event);
   }
 
   @HostListener('window:mouseup')
   onMouseUp(): void {
     if (this.isPointerDown) {
-      this.endDrag();
-    }
-  }
-
-  onHandleClick(): void {
-    if (!this.isDragging()) {
-      this.close();
+      this.handleEnd();
     }
   }
 
   close(): void {
     this.haptics.impactLight();
+    this.dragY.set(0);
+    this.isDragging.set(false);
+    this.isPointerDown = false;
     this.overlayService.close(undefined);
   }
 
-  private startDrag(clientY: number, target: HTMLElement): void {
-    const sheetBody = document.querySelector('.sheet-body');
-    const isAtTop = !sheetBody || sheetBody.scrollTop <= 0;
-    const isHeaderOrHandle = !!(
-      target.closest('.drag-handle-wrapper') ||
-      target.closest('.drag-handle') ||
-      target.closest('.sheet-header')
-    );
-
-    // Permitir início do drag no handle, header ou quando no topo da pagina
-    if (isHeaderOrHandle || isAtTop) {
-      this.isPointerDown = true;
-      this.startY = clientY;
-      this.dragY.set(0);
-    }
-  }
-
-  private moveDrag(clientY: number, event: Event): void {
-    if (!this.isPointerDown) return;
+  private handleMove(clientY: number, event: Event): void {
     const deltaY = clientY - this.startY;
 
-    if (deltaY > 5) {
+    if (deltaY > 3) {
       this.isDragging.set(true);
       this.dragY.set(deltaY);
       if (event.cancelable) {
         event.preventDefault();
       }
     } else if (deltaY < -10 && !this.isDragging()) {
+      // Usuário está arrastando para cima → cancelar o gesto de dismiss
       this.isPointerDown = false;
       this.dragY.set(0);
     }
   }
 
-  private endDrag(): void {
-    if (!this.isPointerDown && !this.isDragging()) return;
-
+  private handleEnd(): void {
     const currentDrag = this.dragY();
-    if (currentDrag > 50) {
+
+    if (currentDrag > 60) {
       this.close();
+    } else {
+      this.isDragging.set(false);
+      this.dragY.set(0);
     }
 
     this.isPointerDown = false;
-    this.isDragging.set(false);
-    this.dragY.set(0);
   }
 }
