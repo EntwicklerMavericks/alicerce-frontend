@@ -42,6 +42,7 @@ export interface CriarMetaDto {
 export interface CriarAporteDto {
   valor: number;
   data?: string;
+  descricao?: string;
   observacao?: string;
 }
 

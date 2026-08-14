@@ -320,7 +320,7 @@ export class FormularioMetaComponent implements OnInit {
             await this.metasStore.aportar(novaMeta.id, {
               valor: valorInicialNum,
               data: new Date().toISOString().split('T')[0],
-              observacao: 'Aporte inicial de abertura',
+              descricao: 'Aporte inicial de abertura',
             });
           }
 
