@@ -266,14 +266,20 @@ export class MetasStore {
     // Mapear aportes se fornecidos (como aportes ou historicoAportes)
     const rawAportes = rawMeta.aportes || rawMeta.historicoAportes || [];
     const aportes: AporteMeta[] = Array.isArray(rawAportes)
-      ? rawAportes.map((a: any) => ({
-          id: a.id,
-          metaId: a.metaId || rawMeta.id,
-          valor: Number(a.valor || 0),
-          data: a.data ? new Date(a.data).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          observacao: a.observacao || a.descricao || '',
-          dataCriacao: a.dataCriacao,
-        }))
+      ? rawAportes.map((a: any) => {
+          let dataStr = new Date().toISOString().split('T')[0];
+          if (a.data) {
+            dataStr = typeof a.data === 'string' ? a.data.split('T')[0] : new Date(a.data).toISOString().split('T')[0];
+          }
+          return {
+            id: a.id,
+            metaId: a.metaId || rawMeta.id,
+            valor: Number(a.valor || 0),
+            data: dataStr,
+            observacao: a.observacao || a.descricao || '',
+            dataCriacao: a.dataCriacao,
+          };
+        })
       : [];
 
     // Cálculo de Ritmo Mensal e Dias Restantes
