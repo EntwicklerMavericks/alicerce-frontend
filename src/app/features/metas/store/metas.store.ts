@@ -176,8 +176,8 @@ export class MetasStore {
 
     try {
       const res = await firstValueFrom(this.api.aportar(metaId, dto));
-      if (res && res.meta) {
-        this.metas.update((list) => list.map((m) => (m.id === metaId ? this.processarMeta(res.meta) : m)));
+      if (res) {
+        await this.carregarMetas();
       } else {
         this.aportarLocal(metaId, dto);
       }
@@ -222,6 +222,8 @@ export class MetasStore {
   async removerAporte(metaId: string, aporteId: string): Promise<boolean> {
     try {
       await firstValueFrom(this.api.removerAporte(metaId, aporteId));
+      await this.carregarMetas();
+      return true;
     } catch (_) {
       // Ignora erro backend e remove localmente
     }
@@ -250,23 +252,37 @@ export class MetasStore {
     return true;
   }
 
-  private processarMeta = (meta: Meta): Meta => {
-    const valorAlvo = Number(meta.valorAlvo || 0);
-    const valorAtual = Number(meta.valorAtual || 0);
-    const pct = valorAlvo > 0 ? (valorAtual / valorAlvo) * 100 : 0;
+  private processarMeta = (rawMeta: any): Meta => {
+    const valorAlvo = Number(rawMeta.valorAlvo || 0);
+    const valorAtual = Number(rawMeta.valorAcumulado ?? rawMeta.valorAtual ?? 0);
+    const rawPct = rawMeta.progressoPercentual ?? (valorAlvo > 0 ? (valorAtual / valorAlvo) * 100 : 0);
+    const pct = Number(Number(rawPct).toFixed(1));
 
-    let status: StatusMeta = meta.status;
+    let status: StatusMeta = rawMeta.status;
     if (pct >= 100) {
       status = 'CONCLUIDA';
     }
 
-    // Cálculo de Ritmo Mensal e Dias Restantes
-    let diasRestantes = 0;
-    let ritmoMensal = 0;
-    let noPrazo = true;
+    // Mapear aportes se fornecidos (como aportes ou historicoAportes)
+    const rawAportes = rawMeta.aportes || rawMeta.historicoAportes || [];
+    const aportes: AporteMeta[] = Array.isArray(rawAportes)
+      ? rawAportes.map((a: any) => ({
+          id: a.id,
+          metaId: a.metaId || rawMeta.id,
+          valor: Number(a.valor || 0),
+          data: a.data ? new Date(a.data).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          observacao: a.observacao || a.descricao || '',
+          dataCriacao: a.dataCriacao,
+        }))
+      : [];
 
-    if (meta.prazo) {
-      const dataPrazo = new Date(meta.prazo);
+    // Cálculo de Ritmo Mensal e Dias Restantes
+    let diasRestantes = rawMeta.diasRestantes || 0;
+    let ritmoMensal = rawMeta.ritmoMensalEstimado || 0;
+    let noPrazo = rawMeta.projetadoPrazo ?? true;
+
+    if (rawMeta.prazo) {
+      const dataPrazo = new Date(rawMeta.prazo);
       const hoje = new Date();
       const diffMs = dataPrazo.getTime() - hoje.getTime();
       diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
@@ -279,7 +295,6 @@ export class MetasStore {
         const faltante = Math.max(0, valorAlvo - valorAtual);
         ritmoMensal = Math.round(faltante / mesesRestantes);
 
-        // Se ritmo necessário for desproporcional (> 50% do valorAlvo por mês), alerta
         if (ritmoMensal > valorAlvo * 0.5 && diasRestantes < 60) {
           noPrazo = false;
         }
@@ -287,14 +302,22 @@ export class MetasStore {
     }
 
     return {
-      ...meta,
+      ...rawMeta,
+      id: rawMeta.id,
+      workspaceId: rawMeta.workspaceId || 'ws-default',
+      nome: rawMeta.nome,
+      descricao: rawMeta.descricao,
       valorAlvo,
       valorAtual,
-      percentualConcluido: Number(pct.toFixed(1)),
+      percentualConcluido: pct,
+      prazo: rawMeta.prazo,
       status,
+      cor: rawMeta.cor || '#C9A74E',
+      icone: rawMeta.icone || 'flag',
       ritmoMensalEstimado: ritmoMensal,
       diasRestantes: Math.max(0, diasRestantes),
       projetadoPrazo: noPrazo,
+      aportes,
     };
   };
 }
