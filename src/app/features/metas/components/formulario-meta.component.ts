@@ -303,22 +303,27 @@ export class FormularioMetaComponent implements OnInit {
         }
       } else {
         const valorInicialNum = Number(val.valorInicial || 0);
-        const dtoPayload: any = {
+
+        // Criar meta com dados padrao (sem valorInicial no POST /metas para compatibilidade total)
+        const novaMeta = await this.metasStore.criarMeta({
           nome: val.nome,
           descricao: val.descricao,
           valorAlvo: Number(val.valorAlvo),
           prazo: val.prazo,
           icone: val.icone,
           cor: val.cor,
-        };
+        });
 
-        if (valorInicialNum > 0) {
-          dtoPayload.valorInicial = valorInicialNum;
-        }
+        if (novaMeta) {
+          // Se houver valor inicial > 0, registrar o aporte de abertura
+          if (valorInicialNum > 0 && novaMeta.id) {
+            await this.metasStore.aportar(novaMeta.id, {
+              valor: valorInicialNum,
+              data: new Date().toISOString().split('T')[0],
+              observacao: 'Aporte inicial de abertura',
+            });
+          }
 
-        const ok = await this.metasStore.criarMeta(dtoPayload);
-
-        if (ok) {
           this.toastService.showSuccess(`Meta "${val.nome}" criada com sucesso!`);
           this.overlayService.close({ saved: true });
         }

@@ -82,14 +82,15 @@ export class MetasStore {
     }
   }
 
-  async criarMeta(dto: CriarMetaDto): Promise<boolean> {
+  async criarMeta(dto: CriarMetaDto): Promise<Meta | null> {
     this.carregando.set(true);
     this.erro.set(null);
 
     try {
       const nova = await firstValueFrom(this.api.criar(dto));
-      this.metas.update((list) => [...list, this.processarMeta(nova)]);
-      return true;
+      const processada = this.processarMeta(nova);
+      this.metas.update((list) => [...list, processada]);
+      return processada;
     } catch (err: any) {
       // Fallback mock local
       const valorInicial = Number(dto.valorInicial || 0);
@@ -120,8 +121,9 @@ export class MetasStore {
         ] : [],
       };
 
-      this.metas.update((list) => [...list, this.processarMeta(mockNova)]);
-      return true;
+      const processadaMock = this.processarMeta(mockNova);
+      this.metas.update((list) => [...list, processadaMock]);
+      return processadaMock;
     } finally {
       this.carregando.set(false);
     }
