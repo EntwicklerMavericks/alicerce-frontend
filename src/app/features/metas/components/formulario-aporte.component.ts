@@ -239,7 +239,7 @@ export class FormularioAporteComponent implements OnInit {
       const ok = await this.metasStore.aportar(targetId, {
         valor: Number(val.valor),
         data: val.data,
-        observacao: val.observacao,
+        descricao: val.observacao,
       });
 
       if (ok) {

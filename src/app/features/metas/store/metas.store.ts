@@ -202,7 +202,7 @@ export class MetasStore {
             metaId,
             valor: Number(dto.valor),
             data: dto.data || new Date().toISOString().split('T')[0],
-            observacao: dto.observacao,
+            observacao: dto.observacao || dto.descricao,
           };
           const listaAportes = [novoAporte, ...(m.aportes || [])];
 

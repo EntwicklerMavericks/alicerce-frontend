@@ -32,7 +32,17 @@ export class MetasService {
   }
 
   aportar(id: string, dados: CriarAporteDto): Observable<{ meta: Meta; aporte: AporteMeta }> {
-    return this.http.post<{ meta: Meta; aporte: AporteMeta }>(`${this.baseUrl}/${id}/aportes`, dados);
+    const payload: any = {
+      valor: Number(dados.valor),
+    };
+    if (dados.data) {
+      payload.data = dados.data;
+    }
+    const textoDesc = (dados.descricao || dados.observacao || '').trim();
+    if (textoDesc) {
+      payload.descricao = textoDesc;
+    }
+    return this.http.post<{ meta: Meta; aporte: AporteMeta }>(`${this.baseUrl}/${id}/aportes`, payload);
   }
 
   removerAporte(id: string, aporteId: string): Observable<void> {
