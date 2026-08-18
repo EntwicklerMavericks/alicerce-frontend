@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2B0B10"/>
+      <stop offset="100%" stop-color="#140507"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E5CA"/>
+      <stop offset="45%" stop-color="#D8B87E"/>
+      <stop offset="100%" stop-color="#B8924B"/>
+    </linearGradient>
+    <linearGradient id="bordoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A13D63"/>
+      <stop offset="100%" stop-color="#6B1B27"/>
+    </linearGradient>
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
+  
+  <!-- Outer Champagne Gold Border Ring -->
+  <rect x="20" y="20" width="472" height="472" rx="108" fill="none" stroke="url(#goldGrad)" stroke-width="12" stroke-opacity="0.6"/>
+
+  <!-- Inner Subtle Accent -->
+  <rect x="36" y="36" width="440" height="440" rx="92" fill="none" stroke="url(#bordoGrad)" stroke-width="4" stroke-opacity="0.4"/>
+
+  <!-- Alicerce Foundation Pillar Architecture Symbol -->
+  <g fill="url(#goldGrad)" filter="url(#goldGlow)" transform="translate(106, 106) scale(12.5)">
+    <path d="M19 12h3V5H2v7h3v9H2v2h20v-2h-3v-9zm-2 9H7v-9h10v9zM12 7.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+  </g>
+</svg>
