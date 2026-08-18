@@ -275,7 +275,7 @@ import { Meta, StatusMeta } from '../../../core/models/meta.models';
   `,
   styles: [`
     .metas-page {
-      padding: 16px;
+      padding: 16px 16px calc(60px + var(--sab)) 16px;
       display: flex;
       flex-direction: column;
       gap: 20px;

@@ -362,7 +362,7 @@ import { ItemWishlist, PrioridadeWishlist } from '../../../core/models/wishlist.
   `,
   styles: [`
     .wishlist-page {
-      padding: 16px;
+      padding: 16px 16px calc(60px + var(--sab)) 16px;
       display: flex;
       flex-direction: column;
       gap: 20px;

@@ -279,7 +279,7 @@ import { FormularioWishlistComponent } from '../../features/wishlist/components/
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(85px + var(--sab));
+      padding-bottom: calc(140px + var(--sab));
       box-sizing: border-box;
     }
   `],
