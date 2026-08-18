@@ -57,8 +57,8 @@ import { Meta } from '../../../core/models/meta.models';
         <app-input
           id="valor"
           label="Valor do Aporte (R$)"
-          type="number"
-          placeholder="Ex: 500.00"
+          type="currency"
+          placeholder="R$ 0,00"
           icon="attach_money"
           formControlName="valor"
           [required]="true">

@@ -48,6 +48,10 @@ export class ToastService {
     return this.show({ message, type: 'warning', durationMs: 4000 });
   }
 
+  showInfo(message: string): string {
+    return this.show({ message, type: 'info', durationMs: 4000 });
+  }
+
   dismiss(id: string): void {
     this.activeToasts.update((list) => list.filter((t) => t.id !== id));
   }

@@ -42,8 +42,8 @@ import { Meta } from '../../../core/models/meta.models';
           <app-input
             id="valorAlvo"
             label="Valor Alvo (R$)"
-            type="number"
-            placeholder="Ex: 20000.00"
+            type="currency"
+            placeholder="R$ 0,00"
             icon="attach_money"
             formControlName="valorAlvo"
             [required]="true">
@@ -53,8 +53,8 @@ import { Meta } from '../../../core/models/meta.models';
             <app-input
               id="valorInicial"
               label="Aporte Inicial (R$)"
-              type="number"
-              placeholder="Ex: 1000.00"
+              type="currency"
+              placeholder="R$ 0,00"
               icon="savings"
               formControlName="valorInicial">
             </app-input>

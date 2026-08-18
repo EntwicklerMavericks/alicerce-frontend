@@ -26,4 +26,8 @@ export class CotacoesService {
   removerCotacaoAvulsa(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/avulsa/${id}`);
   }
+
+  buscarCotacoesSobDemanda(itemWishlistId: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/item/${itemWishlistId}/buscar-automatico`, {});
+  }
 }

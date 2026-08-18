@@ -23,16 +23,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
       }
 
       <div class="input-container">
-        @if (icon) {
-          <span class="material-symbols-rounded leading-icon">{{ icon }}</span>
+        @if (effectiveIcon) {
+          <span class="material-symbols-rounded leading-icon">{{ effectiveIcon }}</span>
         }
 
         <input
           [id]="id"
-          [type]="isPassword ? (showPassword ? 'text' : 'password') : type"
-          [placeholder]="placeholder"
+          [type]="inputType"
+          [attr.inputmode]="inputMode"
+          [placeholder]="effectivePlaceholder"
           [disabled]="disabled"
-          [value]="value"
+          [value]="displayValue"
           (input)="onInput($event)"
           (blur)="onBlur()"
           (focus)="isFocused = true"
@@ -180,7 +181,7 @@ export class InputComponent implements ControlValueAccessor {
   @Input() required = false;
   @Input() invalid = false;
 
-  value = '';
+  displayValue = '';
   disabled = false;
   touched = false;
   isFocused = false;
@@ -190,18 +191,66 @@ export class InputComponent implements ControlValueAccessor {
     return this.type === 'password';
   }
 
+  get isCurrency(): boolean {
+    return this.type === 'currency';
+  }
+
+  get inputType(): string {
+    if (this.isPassword) {
+      return this.showPassword ? 'text' : 'password';
+    }
+    if (this.isCurrency) {
+      return 'text';
+    }
+    return this.type;
+  }
+
+  get inputMode(): string | null {
+    if (this.isCurrency) {
+      return 'numeric';
+    }
+    return null;
+  }
+
+  get effectiveIcon(): string | undefined {
+    if (this.icon) return this.icon;
+    if (this.isCurrency) return 'attach_money';
+    return undefined;
+  }
+
+  get effectivePlaceholder(): string {
+    if (this.placeholder) return this.placeholder;
+    if (this.isCurrency) return 'R$ 0,00';
+    return '';
+  }
+
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
-  private onChange: (value: string) => void = () => {};
+  private onChange: (value: any) => void = () => {};
   private onTouched: () => void = () => {};
 
-  writeValue(val: string): void {
-    this.value = val || '';
+  writeValue(val: any): void {
+    if (this.isCurrency) {
+      if (val !== null && val !== undefined && val !== '') {
+        const num = Number(val);
+        if (!isNaN(num) && num > 0) {
+          const cents = Math.round(num * 100);
+          const { display } = this.formatCurrency(cents.toString());
+          this.displayValue = display;
+        } else {
+          this.displayValue = '';
+        }
+      } else {
+        this.displayValue = '';
+      }
+    } else {
+      this.displayValue = val || '';
+    }
   }
 
-  registerOnChange(fn: (value: string) => void): void {
+  registerOnChange(fn: (value: any) => void): void {
     this.onChange = fn;
   }
 
@@ -214,14 +263,38 @@ export class InputComponent implements ControlValueAccessor {
   }
 
   onInput(event: Event): void {
-    const inputVal = (event.target as HTMLInputElement).value;
-    this.value = inputVal;
-    this.onChange(inputVal);
+    const rawVal = (event.target as HTMLInputElement).value;
+    if (this.isCurrency) {
+      const { display, numberValue } = this.formatCurrency(rawVal);
+      this.displayValue = display;
+      (event.target as HTMLInputElement).value = display;
+      this.onChange(numberValue > 0 ? numberValue : null);
+    } else {
+      this.displayValue = rawVal;
+      this.onChange(rawVal);
+    }
   }
 
   onBlur(): void {
     this.isFocused = false;
     this.touched = true;
     this.onTouched();
+  }
+
+  private formatCurrency(val: string): { display: string; numberValue: number } {
+    const digitsOnly = String(val).replace(/\D/g, '');
+    if (!digitsOnly) {
+      return { display: '', numberValue: 0 };
+    }
+
+    const numberValue = Number(digitsOnly) / 100;
+    const display = numberValue.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+    return { display, numberValue };
   }
 }

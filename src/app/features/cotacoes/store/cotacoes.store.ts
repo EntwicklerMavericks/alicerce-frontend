@@ -29,6 +29,7 @@ export class CotacoesStore {
   readonly itemWishlistAtual = signal<ItemWishlist | null>(null);
   readonly produtoAtual = signal<Produto | null>(null);
   readonly carregando = signal<boolean>(false);
+  readonly statusColeta = signal<'CONCLUIDA' | 'PARCIAL' | 'SEM_RESULTADOS' | null>(null);
   readonly erro = signal<string | null>(null);
 
   // Computed Selectors
@@ -210,10 +211,44 @@ export class CotacoesStore {
     if (produto) this.produtoAtual.set(produto);
 
     try {
-      const comp = await firstValueFrom(this.api.obterComparador(itemWishlistId));
-      if (comp) {
-        this.comparador.set(comp);
-        this.cotacoesAvulsas.set(comp.cotacoesAvulsas || []);
+      const res: any = await firstValueFrom(this.api.obterComparador(itemWishlistId));
+      if (res) {
+        const ofertasRaw: any[] = Array.isArray(res.ofertas) ? res.ofertas : [];
+
+        const avulsas: CotacaoAvulsa[] = (res.cotacoesAvulsas || ofertasRaw.filter((o) => o.tipo === 'COTACAO_AVULSA' || !o.tipo)).map((o: any) => ({
+          id: o.id,
+          itemWishlistId,
+          lojaNome: o.nomeLoja || o.lojaNome || 'Loja Avulsa',
+          lojaUrl: o.url || o.lojaUrl || undefined,
+          preco: Number(o.preco || 0),
+          dataCotacao: o.dataCotacao || o.criadoEm || new Date().toISOString(),
+          observacao: o.observacoes || o.observacao || undefined,
+          criadoEm: o.dataCotacao || o.criadoEm || new Date().toISOString(),
+        }));
+
+        const links: LinkLojaOferta[] = (res.linksLoja || ofertasRaw.filter((o) => o.tipo === 'LINK_PRODUTO')).map((o: any) => ({
+          id: o.id,
+          lojaNome: o.nomeLoja || o.lojaNome || 'Loja Parceira',
+          lojaLogo: o.lojaLogo,
+          url: o.url || o.lojaUrl || '',
+          preco: Number(o.preco || 0),
+          ultimaVerificacao: o.dataCotacao ? new Date(o.dataCotacao) : new Date(),
+        }));
+
+        const comparadorNormalizado: ComparadorCotacoes = {
+          itemWishlistId: res.itemWishlistId || itemWishlistId,
+          itemWishlistNome: res.nomeItem || res.itemWishlistNome || this.nomeItem(),
+          precoAlvo: res.precoAlvo !== undefined && res.precoAlvo !== null ? Number(res.precoAlvo) : this.precoAlvo(),
+          melhorOferta: res.melhorOferta || null,
+          alvoAtingido: Boolean(res.alvoAtingido),
+          economiaPotencial: res.economiaPotencial !== undefined && res.economiaPotencial !== null ? Number(res.economiaPotencial) : null,
+          cotacoesAvulsas: avulsas,
+          linksLoja: links,
+          historico: Array.isArray(res.historico) ? res.historico : [],
+        };
+
+        this.comparador.set(comparadorNormalizado);
+        this.cotacoesAvulsas.set(avulsas);
         return;
       }
     } catch (err) {
@@ -232,8 +267,19 @@ export class CotacoesStore {
     this.erro.set(null);
 
     try {
-      const novaCotacao = await firstValueFrom(this.api.registrarCotacaoAvulsa(dto));
+      const res: any = await firstValueFrom(this.api.registrarCotacaoAvulsa(dto));
+      const novaCotacao: CotacaoAvulsa = {
+        id: res.id || `cot-${Date.now()}`,
+        itemWishlistId: res.itemWishlistId || dto.itemWishlistId,
+        lojaNome: res.nomeLoja || dto.lojaNome,
+        lojaUrl: res.url || dto.lojaUrl,
+        preco: Number(res.preco ?? dto.preco),
+        dataCotacao: res.dataCriacao || new Date().toISOString(),
+        observacao: res.observacoes || dto.observacao,
+        criadoEm: res.dataCriacao || new Date().toISOString(),
+      };
       this.cotacoesAvulsas.update((list) => [novaCotacao, ...list]);
+      await this.carregarComparador(dto.itemWishlistId);
       return true;
     } catch (err) {
       // Fallback local mock se backend offline
@@ -261,6 +307,28 @@ export class CotacoesStore {
 
     this.cotacoesAvulsas.update((list) => list.filter((c) => c.id !== id));
     return true;
+  }
+
+  async buscarCotacoesSobDemanda(itemWishlistId: string): Promise<boolean> {
+    this.carregando.set(true);
+    this.erro.set(null);
+
+    try {
+      const res: any = await firstValueFrom(this.api.buscarCotacoesSobDemanda(itemWishlistId));
+      if (res) {
+        if (res.statusColeta) {
+          this.statusColeta.set(res.statusColeta);
+        }
+        await this.carregarComparador(itemWishlistId);
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      this.erro.set('Falha ao pesquisar ofertas no mercado.');
+      return false;
+    } finally {
+      this.carregando.set(false);
+    }
   }
 
   resetStore(): void {

@@ -178,19 +178,43 @@ export class DashboardStore {
     const metasPrioritarias: MetaPrioritariaDashboard[] = Array.isArray(
       raw.metasPrioritarias || raw.metasAtivas
     )
-      ? (raw.metasPrioritarias || raw.metasAtivas).map((m: any) => ({
-          id: m.id || `meta-${Date.now()}`,
-          nome: m.nome || m.titulo || 'Meta',
-          valorAlvo: Number(m.valorAlvo || 0),
-          valorAtual: Number(m.valorAtual || m.valorAcumulado || 0),
-          percentualConcluido: Number(m.percentualConcluido ?? m.progresso ?? 0),
-          prazo: m.prazo || '2026-12-31',
-          status: m.status || 'EM_ANDAMENTO',
-          ritmoMensalEstimado: Number(m.ritmoMensalEstimado || 0),
-          diasRestantes: Number(m.diasRestantes || 0),
-          cor: m.cor || '#C9A74E',
-          icone: m.icone || 'flag',
-        }))
+      ? (raw.metasPrioritarias || raw.metasAtivas).map((m: any) => {
+          const valorAlvo = Number(m.valorAlvo || 0);
+          const valorAtual = Number(m.valorAcumulado ?? m.valorAtual ?? 0);
+
+          let percentualConcluido = Number(m.percentualConcluido ?? m.progressoPercentual ?? m.progresso ?? 0);
+          if (!percentualConcluido && valorAlvo > 0) {
+            percentualConcluido = Number(((valorAtual / valorAlvo) * 100).toFixed(1));
+          }
+
+          let diasRestantes = Number(m.diasRestantes || 0);
+          if (!diasRestantes && m.prazo) {
+            const dataPrazo = new Date(m.prazo);
+            const hoje = new Date();
+            const diffMs = dataPrazo.getTime() - hoje.getTime();
+            diasRestantes = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+          }
+
+          let ritmoMensalEstimado = Number(m.ritmoMensalEstimado || 0);
+          if (!ritmoMensalEstimado && valorAlvo > valorAtual && diasRestantes > 0) {
+            const mesesRestantes = Math.max(1, Math.ceil(diasRestantes / 30));
+            ritmoMensalEstimado = Number(((valorAlvo - valorAtual) / mesesRestantes).toFixed(2));
+          }
+
+          return {
+            id: m.id || `meta-${Date.now()}`,
+            nome: m.nome || m.titulo || 'Meta',
+            valorAlvo,
+            valorAtual,
+            percentualConcluido,
+            prazo: m.prazo || '2026-12-31',
+            status: m.status || 'EM_ANDAMENTO',
+            ritmoMensalEstimado,
+            diasRestantes,
+            cor: m.cor || '#C9A74E',
+            icone: m.icone || 'flag',
+          };
+        })
       : EMPTY_DASHBOARD_FALLBACK.metasPrioritarias;
 
     const alertas: AlertaDashboard[] = Array.isArray(raw.alertas || raw.alertasCriticos)

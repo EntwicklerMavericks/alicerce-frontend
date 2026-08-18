@@ -33,11 +33,32 @@ export class WishlistService {
   }
 
   criar(dados: CriarItemWishlistDto): Observable<ItemWishlist> {
-    return this.http.post<ItemWishlist>(this.baseUrl, dados);
+    const valorNum = Number(dados.precoEstimado ?? dados.precoAlvo ?? 0);
+    const payload: any = {
+      nome: dados.nome,
+      descricao: dados.descricao || undefined,
+      precoAlvo: valorNum,
+      precoEstimado: valorNum,
+      prioridade: dados.prioridade || undefined,
+      diasEsfriamento: dados.diasEsfriamento ? Number(dados.diasEsfriamento) : undefined,
+      imagemUrl: dados.imagemUrl || undefined,
+      linkUrl: dados.linkUrl || undefined,
+      metaId: dados.metaId || undefined,
+      categoriaId: dados.categoriaId || undefined,
+      produtoId: dados.produtoId || undefined,
+    };
+    return this.http.post<ItemWishlist>(this.baseUrl, payload);
   }
 
   atualizar(id: string, dados: AtualizarItemWishlistDto): Observable<ItemWishlist> {
-    return this.http.put<ItemWishlist>(`${this.baseUrl}/${id}`, dados);
+    const valorNum = dados.precoEstimado !== undefined || dados.precoAlvo !== undefined 
+      ? Number(dados.precoEstimado ?? dados.precoAlvo) 
+      : undefined;
+    const payload: any = {
+      ...dados,
+      ...(valorNum !== undefined && { precoAlvo: valorNum, precoEstimado: valorNum }),
+    };
+    return this.http.patch<ItemWishlist>(`${this.baseUrl}/${id}`, payload);
   }
 
   remover(id: string): Observable<void> {

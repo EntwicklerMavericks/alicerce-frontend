@@ -60,8 +60,8 @@ import { ItemWishlist, PrioridadeWishlist } from '../../../core/models/wishlist.
           <app-input
             id="precoEstimado"
             label="Preço Estimado (R$)"
-            type="number"
-            placeholder="Ex: 2500.00"
+            type="currency"
+            placeholder="R$ 0,00"
             icon="attach_money"
             formControlName="precoEstimado"
             [required]="true">

@@ -50,6 +50,7 @@ export interface CriarItemWishlistDto {
   nome: string;
   descricao?: string;
   precoEstimado: number;
+  precoAlvo?: number;
   prioridade?: PrioridadeWishlist;
   diasEsfriamento?: number;
   produtoId?: string;
@@ -63,6 +64,7 @@ export interface AtualizarItemWishlistDto {
   nome?: string;
   descricao?: string;
   precoEstimado?: number;
+  precoAlvo?: number;
   prioridade?: PrioridadeWishlist;
   diasEsfriamento?: number;
   produtoId?: string;

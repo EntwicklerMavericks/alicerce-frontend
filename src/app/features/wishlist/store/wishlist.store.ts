@@ -31,6 +31,7 @@ export class WishlistStore {
 
   // Processamento dinamico de contagem regressiva de esfriamento
   private processarItemWishlist = (item: ItemWishlist): ItemWishlist => {
+    const rawStatus = (item.status as string) === 'ANALISE' ? 'ESFRIAMENTO' : item.status;
     const dataInicio = item.dataInicioEsfriamento ? new Date(item.dataInicioEsfriamento) : new Date();
     const totalDias = item.diasEsfriamento || 7;
     const dataFim = new Date(dataInicio.getTime() + totalDias * 24 * 60 * 60 * 1000);
@@ -41,12 +42,13 @@ export class WishlistStore {
 
     return {
       ...item,
-      precoEstimado: Number(item.precoEstimado || 0),
+      status: rawStatus as StatusWishlist,
+      precoEstimado: Number(item.precoEstimado ?? (item as any).precoAlvo ?? 0),
       precoPago: item.precoPago !== undefined && item.precoPago !== null ? Number(item.precoPago) : null,
       diasEsfriamento: totalDias,
       dataFimEsfriamento: dataFim.toISOString().split('T')[0],
-      diasRestantesEsfriamento: item.status === 'ESFRIAMENTO' ? diasRestantes : 0,
-      esfriamentoConcluido: item.status === 'ESFRIAMENTO' ? esfriamentoConcluido : true,
+      diasRestantesEsfriamento: rawStatus === 'ESFRIAMENTO' ? diasRestantes : 0,
+      esfriamentoConcluido: rawStatus === 'ESFRIAMENTO' ? esfriamentoConcluido : true,
     };
   };
 
