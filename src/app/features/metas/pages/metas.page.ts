@@ -190,7 +190,7 @@ import { Meta, StatusMeta } from '../../../core/models/meta.models';
                       <span class="material-symbols-rounded ritmo-icon">trending_up</span>
                       <div class="ritmo-text">
                         <span class="ritmo-label">Ritmo Mensal Recomendado</span>
-                        <span class="ritmo-val gold">{{ meta.ritmoMensalEstimado | currency:'BRL':'symbol':'1.0-0':'pt-BR' }}/mês</span>
+                        <span class="ritmo-val gold">{{ meta.ritmoMensalEstimado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}/mês</span>
                       </div>
                     </div>
 

@@ -299,7 +299,7 @@ export class MetasStore {
       } else if (pct < 100) {
         const mesesRestantes = Math.max(1, Math.ceil(diasRestantes / 30));
         const faltante = Math.max(0, valorAlvo - valorAtual);
-        ritmoMensal = Math.round(faltante / mesesRestantes);
+        ritmoMensal = Number((faltante / mesesRestantes).toFixed(2));
 
         if (ritmoMensal > valorAlvo * 0.5 && diasRestantes < 60) {
           noPrazo = false;
