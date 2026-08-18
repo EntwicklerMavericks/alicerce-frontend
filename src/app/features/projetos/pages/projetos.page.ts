@@ -259,12 +259,14 @@ import { ProjetoReadModel, StatusProjeto } from '../../../core/models/projeto.mo
   `,
   styles: [`
     .projetos-page {
-      padding: 16px;
+      padding: 16px 16px 120px 16px;
       display: flex;
       flex-direction: column;
       gap: 20px;
       max-width: 850px;
       margin: 0 auto;
+      min-height: 100%;
+      box-sizing: border-box;
     }
 
     .page-header {

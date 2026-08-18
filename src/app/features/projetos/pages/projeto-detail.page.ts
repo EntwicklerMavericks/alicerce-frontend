@@ -379,12 +379,14 @@ import {
   `,
   styles: [`
     .projeto-detail-page {
-      padding: 16px;
+      padding: 16px 16px 120px 16px;
       display: flex;
       flex-direction: column;
       gap: 20px;
       max-width: 850px;
       margin: 0 auto;
+      min-height: 100%;
+      box-sizing: border-box;
     }
 
     .top-nav {

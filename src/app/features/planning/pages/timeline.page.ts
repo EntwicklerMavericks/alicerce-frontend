@@ -320,9 +320,11 @@ export type ApexChartOptions = {
       display: flex;
       flex-direction: column;
       gap: 24px;
-      padding: 20px;
+      padding: 20px 20px 120px 20px;
       max-width: 1280px;
       margin: 0 auto;
+      min-height: 100%;
+      box-sizing: border-box;
     }
 
     /* Hero Banner */
