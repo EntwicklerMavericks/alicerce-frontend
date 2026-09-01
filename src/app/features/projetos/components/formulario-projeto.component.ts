@@ -42,8 +42,8 @@ import { ProjetoReadModel } from '../../../core/models/projeto.models';
           <app-input
             id="orcamentoEstimado"
             label="Orçamento Estimado (R$)"
-            type="number"
-            placeholder="Ex: 35000.00"
+            type="currency"
+            placeholder="R$ 0,00"
             icon="attach_money"
             formControlName="orcamentoEstimado"
             [required]="true">
