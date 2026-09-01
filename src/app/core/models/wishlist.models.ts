@@ -12,8 +12,10 @@ export interface ItemWishlist {
   prioridade: PrioridadeWishlist;
   status: StatusWishlist;
   diasEsfriamento: number;
-  dataInicioEsfriamento: string | Date;
+  dataInicioEsfriamento?: string | Date;
+  inicioEsfriamento?: string | Date;
   dataFimEsfriamento?: string | Date | null;
+  fimEsfriamento?: string | Date | null;
   diasRestantesEsfriamento?: number;
   esfriamentoConcluido?: boolean;
   produtoId?: string | null;

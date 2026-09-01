@@ -32,9 +32,12 @@ export class WishlistStore {
   // Processamento dinamico de contagem regressiva de esfriamento
   private processarItemWishlist = (item: ItemWishlist): ItemWishlist => {
     const rawStatus = (item.status as string) === 'ANALISE' ? 'ESFRIAMENTO' : item.status;
-    const dataInicio = item.dataInicioEsfriamento ? new Date(item.dataInicioEsfriamento) : new Date();
+    const rawInicio = item.dataInicioEsfriamento || item.inicioEsfriamento || (item as any).dataCriacao;
+    const rawFim = item.dataFimEsfriamento || item.fimEsfriamento;
+
+    const dataInicio = rawInicio ? new Date(rawInicio) : new Date();
     const totalDias = item.diasEsfriamento || 7;
-    const dataFim = new Date(dataInicio.getTime() + totalDias * 24 * 60 * 60 * 1000);
+    const dataFim = rawFim ? new Date(rawFim) : new Date(dataInicio.getTime() + totalDias * 24 * 60 * 60 * 1000);
     const hoje = new Date();
     const diffMs = dataFim.getTime() - hoje.getTime();
     const diasRestantes = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
@@ -46,6 +49,7 @@ export class WishlistStore {
       precoEstimado: Number(item.precoEstimado ?? (item as any).precoAlvo ?? 0),
       precoPago: item.precoPago !== undefined && item.precoPago !== null ? Number(item.precoPago) : null,
       diasEsfriamento: totalDias,
+      dataInicioEsfriamento: dataInicio,
       dataFimEsfriamento: dataFim.toISOString().split('T')[0],
       diasRestantesEsfriamento: rawStatus === 'ESFRIAMENTO' ? diasRestantes : 0,
       esfriamentoConcluido: rawStatus === 'ESFRIAMENTO' ? esfriamentoConcluido : true,
