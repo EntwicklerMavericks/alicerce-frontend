@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import {
@@ -386,7 +386,7 @@ export type ChartOptions = {
   `,
   styles: [`
     :host { display: block; width: 100%; }
-    .dashboard-container { display: flex; flex-direction: column; gap: 20px; padding: 16px; max-width: 1440px; margin: 0 auto; }
+    .dashboard-container { display: flex; flex-direction: column; gap: 20px; padding: 16px; max-width: 1440px; margin: 0 auto; padding-bottom: calc(140px + var(--sab, 0px)); }
     .executive-header {
       background: linear-gradient(135deg, #4A121A 0%, #1F1A1B 100%);
       border: 1px solid rgba(201, 167, 78, 0.35); border-radius: 16px; padding: 24px; display: flex;
@@ -504,8 +504,12 @@ export type ChartOptions = {
     }
   `],
 })
-export class DashboardPage {
+export class DashboardPage implements OnInit {
   public readonly store = inject(DashboardStore);
+
+  ngOnInit(): void {
+    this.store.carregarDashboard();
+  }
 
   public readonly chartOptions = computed<ChartOptions>(() => {
     const dash = this.store.dashboardData();

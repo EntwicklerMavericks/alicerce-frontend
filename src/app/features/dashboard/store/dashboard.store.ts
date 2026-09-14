@@ -44,7 +44,9 @@ export class DashboardStore {
   readonly carregando = signal<boolean>(false);
   readonly erro = signal<string | null>(null);
   readonly saldoVisivel = signal<boolean>(true);
-  readonly competenciaSelecionada = signal<string>('2026-08');
+  readonly competenciaSelecionada = signal<string>(
+    new Date().toISOString().slice(0, 7)
+  );
 
   // Computed Selectors
   readonly saldoAtual = computed(() => this.dashboardData()?.saldoAtual ?? 0);
@@ -148,17 +150,17 @@ export class DashboardStore {
     const faturasAbertas: FaturaAbertaDashboard[] = Array.isArray(raw.faturasAbertas)
       ? raw.faturasAbertas.map((f: any) => ({
           cartaoId: f.cartaoId || f.id || 'cartao-id',
-          nomeCartao: f.nomeCartao || f.cartaoNome || 'Cartão de Crédito',
+          nomeCartao: f.cartaoNome || f.nomeCartao || 'Cartão de Crédito',
           bandeira: f.bandeira || 'VISA',
-          cor: f.cor || f.cartaoCor || '#C9A74E',
+          cor: f.cartaoCor || f.cor || '#C9A74E',
           valorFatura: Number(f.valorFatura ?? f.valorTotal ?? 0),
           dataVencimento: f.dataVencimento
             ? new Date(f.dataVencimento).toISOString().split('T')[0]
             : '2026-08-15',
           status: f.status || 'ABERTA',
-          limiteDisponivel: Number(f.limiteDisponivel || 0),
-          limiteTotal: Number(f.limiteTotal || 10000),
-          limiteComprometido: Number(f.limiteComprometido || 0),
+          limiteDisponivel: Number(f.limiteDisponivel ?? 0),
+          limiteTotal: Number(f.limiteTotal ?? 10000),
+          limiteComprometido: Number(f.limiteComprometido ?? 0),
         }))
       : EMPTY_DASHBOARD_FALLBACK.faturasAbertas;
 

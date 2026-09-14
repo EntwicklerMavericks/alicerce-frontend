@@ -31,8 +31,18 @@ export class CartoesStore {
     try {
       const lista = await firstValueFrom(this.cartoesService.listarCartoes());
       this.cartoes.set(lista);
-      if (lista.length > 0 && !this.cartaoSelecionado()) {
-        this.selecionarCartao(lista[0]);
+      if (lista.length > 0) {
+        const existente = this.cartaoSelecionado()
+          ? lista.find(c => c.id === this.cartaoSelecionado()!.id)
+          : null;
+        if (existente) {
+          this.selecionarCartao(existente);
+        } else {
+          this.selecionarCartao(lista[0]);
+        }
+      } else {
+        this.cartaoSelecionado.set(null);
+        this.faturasDoCartao.set([]);
       }
     } finally {
       this.carregando.set(false);
@@ -94,6 +104,10 @@ export class CartoesStore {
   async removerCartao(id: string): Promise<boolean> {
     try {
       await firstValueFrom(this.cartoesService.removerCartao(id));
+      if (this.cartaoSelecionado()?.id === id) {
+        this.cartaoSelecionado.set(null);
+        this.faturasDoCartao.set([]);
+      }
       await this.carregarCartoes();
       return true;
     } catch {

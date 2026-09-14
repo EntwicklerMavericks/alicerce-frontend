@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { CartoesStore } from '../store/cartoes.store';
@@ -82,14 +82,13 @@ import { CartaoCredito, FaturaCartao } from '../../../core/models/cartao.models'
             <p>Nenhum cartão cadastrado. Adicione um novo cartão de crédito para gerenciar parcelas e faturas.</p>
           </div>
         } @else {
-          <div class="cards-carousel">
-            @for (cartao of cartoesStore.cartoes(); track cartao.id) {
-              <div class="card-3d-wrapper">
+          <div class="cards-carousel" #carouselRef (scroll)="onCarouselScroll()">
+            @for (cartao of cartoesStore.cartoes(); track cartao.id; let idx = $index) {
+              <div class="card-3d-wrapper" (click)="onCardWrapperClick(cartao, idx, $event)">
                 <div
                   class="credit-card-item"
                   [class.selected]="cartoesStore.cartaoSelecionado()?.id === cartao.id"
-                  [class.is-flipped]="flippedCardId() === cartao.id"
-                  (click)="toggleFlip(cartao, $event)">
+                  [class.is-flipped]="flippedCardId() === cartao.id">
 
                   <!-- FRENTE DO CARTÃO -->
                   <div class="card-face card-front" [style.background]="cartao.cor || '#820ad1'">
@@ -161,6 +160,20 @@ import { CartaoCredito, FaturaCartao } from '../../../core/models/cartao.models'
               </div>
             }
           </div>
+
+          @if (cartoesStore.cartoes().length > 1) {
+            <div class="carousel-dots">
+              @for (cartao of cartoesStore.cartoes(); track cartao.id; let idx = $index) {
+                <button
+                  type="button"
+                  class="carousel-dot"
+                  [class.active]="activeIndex() === idx"
+                  (click)="scrollToCardIndex(idx); selecionarCartao(cartao)"
+                  [title]="cartao.nome">
+                </button>
+              }
+            </div>
+          }
         }
       </section>
 
@@ -168,7 +181,7 @@ import { CartaoCredito, FaturaCartao } from '../../../core/models/cartao.models'
       @if (cartoesStore.cartaoSelecionado()) {
         <section class="section-faturas">
           <div class="section-header-row">
-            <h2 class="section-title">Faturas • {{ cartoesStore.cartaoSelecionado()?.nome }}</h2>
+            <h2 class="section-title">Faturas • {{ cartoesStore.cartaoSelecionado()?.nome }} (•••• {{ cartoesStore.cartaoSelecionado()?.ultimosDigitos || '****' }})</h2>
             <span class="hint-text">{{ cartoesStore.faturasDoCartao().length }} fatura(s)</span>
           </div>
 
@@ -455,6 +468,36 @@ import { CartaoCredito, FaturaCartao } from '../../../core/models/cartao.models'
       perspective: 1200px;
       margin: 0 auto;
       box-sizing: border-box;
+    }
+
+    .carousel-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: -4px;
+      margin-bottom: 8px;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &:hover {
+        background: rgba(216, 184, 126, 0.5);
+      }
+
+      &.active {
+        width: 22px;
+        background: var(--color-champagne-main, #d8b87e);
+        box-shadow: 0 0 8px rgba(216, 184, 126, 0.6);
+      }
     }
 
     .credit-card-item {
@@ -938,8 +981,14 @@ import { CartaoCredito, FaturaCartao } from '../../../core/models/cartao.models'
     }
   `],
 })
-export class CartoesPage implements OnInit {
+export class CartoesPage implements OnInit, OnDestroy {
+  @ViewChild('carouselRef') private carouselRef?: ElementRef<HTMLDivElement>;
+
   readonly flippedCardId = signal<string | null>(null);
+  readonly activeIndex = signal<number>(0);
+
+  private scrollDebounceTimer?: any;
+  private isProgrammaticScroll = false;
 
   readonly percentualComprometido = computed(() => {
     const total = this.cartoesStore.limiteTotalGeral();
@@ -958,13 +1007,97 @@ export class CartoesPage implements OnInit {
     this.cartoesStore.carregarCartoes();
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.scrollDebounceTimer);
+  }
+
+  onCarouselScroll(): void {
+    if (this.isProgrammaticScroll) return;
+
+    clearTimeout(this.scrollDebounceTimer);
+    this.scrollDebounceTimer = setTimeout(() => {
+      this.syncActiveCardWithCarouselCenter();
+    }, 60);
+  }
+
+  syncActiveCardWithCarouselCenter(): void {
+    const carousel = this.carouselRef?.nativeElement;
+    if (!carousel) return;
+
+    const wrappers = carousel.querySelectorAll<HTMLElement>('.card-3d-wrapper');
+    if (!wrappers || wrappers.length === 0) return;
+
+    const carouselRect = carousel.getBoundingClientRect();
+    const carouselCenter = carouselRect.left + carouselRect.width / 2;
+
+    let closestIndex = 0;
+    let minDistance = Infinity;
+
+    wrappers.forEach((el, index) => {
+      const rect = el.getBoundingClientRect();
+      const cardCenter = rect.left + rect.width / 2;
+      const distance = Math.abs(carouselCenter - cardCenter);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = index;
+      }
+    });
+
+    this.activeIndex.set(closestIndex);
+    const cartoes = this.cartoesStore.cartoes();
+    const targetCartao = cartoes[closestIndex];
+    if (targetCartao && this.cartoesStore.cartaoSelecionado()?.id !== targetCartao.id) {
+      this.selecionarCartao(targetCartao);
+    }
+  }
+
+  scrollToCardIndex(index: number): void {
+    const carousel = this.carouselRef?.nativeElement;
+    if (!carousel) return;
+
+    const wrappers = carousel.querySelectorAll<HTMLElement>('.card-3d-wrapper');
+    const targetEl = wrappers[index];
+    if (targetEl) {
+      this.isProgrammaticScroll = true;
+      this.activeIndex.set(index);
+      targetEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      setTimeout(() => {
+        this.isProgrammaticScroll = false;
+      }, 450);
+    }
+  }
+
+  onCardWrapperClick(cartao: CartaoCredito, index: number, event: Event): void {
+    const target = event.target as HTMLElement;
+    if (target.closest('.back-btn')) {
+      return;
+    }
+
+    // Se o cartão clicado não for o selecionado, rola até ele e o seleciona
+    if (this.cartoesStore.cartaoSelecionado()?.id !== cartao.id) {
+      this.scrollToCardIndex(index);
+      this.selecionarCartao(cartao);
+      return;
+    }
+
+    // Se já estiver selecionado e centralizado, alterna o flip 3D
+    this.toggleFlip(cartao, event);
+  }
+
   selecionarCartao(cartao: CartaoCredito): void {
+    if (this.cartoesStore.cartaoSelecionado()?.id === cartao.id) {
+      return;
+    }
     this.haptics.selectionChanged();
     this.cartoesStore.selecionarCartao(cartao);
+
+    const idx = this.cartoesStore.cartoes().findIndex(c => c.id === cartao.id);
+    if (idx !== -1) {
+      this.activeIndex.set(idx);
+    }
   }
 
   toggleFlip(cartao: CartaoCredito, event: Event): void {
-    // Se o clique veio de um botão dentro do verso, não faz nada extra
     const target = event.target as HTMLElement;
     if (target.closest('.back-btn')) {
       return;
