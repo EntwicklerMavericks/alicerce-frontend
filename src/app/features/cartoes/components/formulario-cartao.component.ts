@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
@@ -19,7 +19,7 @@ import { ColorPickerComponent } from '../../../shared/components/color-picker/co
       <div class="form-header">
         <h3 class="form-title">
           <span class="material-symbols-rounded icon-gold">credit_card</span>
-          Novo Cartão de Crédito
+          {{ isEdicao ? 'Editar Cartão' : 'Novo Cartão' }}
         </h3>
         <button class="close-btn" (click)="fechar()">
           <span class="material-symbols-rounded">close</span>
@@ -27,16 +27,30 @@ import { ColorPickerComponent } from '../../../shared/components/color-picker/co
       </div>
 
       <form (ngSubmit)="salvar()" class="form-body">
-        <div class="form-group">
-          <label for="nome">Nome do Cartão</label>
-          <input
-            id="nome"
-            type="text"
-            [(ngModel)]="nome"
-            name="nome"
-            placeholder="Ex: Nubank UV, XP Visa Infinite..."
-            required
-            class="input-field" />
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="nome">Nome do Cartão</label>
+            <input
+              id="nome"
+              type="text"
+              [(ngModel)]="nome"
+              name="nome"
+              placeholder="Ex: Nubank UV, Itaú Bank..."
+              required
+              class="input-field" />
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="ultimosDigitos">Final (4 Dígitos)</label>
+            <input
+              id="ultimosDigitos"
+              type="text"
+              [(ngModel)]="ultimosDigitos"
+              name="ultimosDigitos"
+              placeholder="4321"
+              maxlength="4"
+              class="input-field center-text" />
+          </div>
         </div>
 
         <div class="form-row">
@@ -95,7 +109,7 @@ import { ColorPickerComponent } from '../../../shared/components/color-picker/co
             size="lg"
             [loading]="salvando()"
             icon="check">
-            Cadastrar Cartão
+            {{ isEdicao ? 'Salvar Alterações' : 'Cadastrar Cartão' }}
           </app-button>
         </div>
       </form>
@@ -152,8 +166,19 @@ import { ColorPickerComponent } from '../../../shared/components/color-picker/co
       gap: 12px;
       min-width: 0;
 
+      .flex-2 {
+        grid-column: span 1;
+      }
+
+      .flex-1 {
+        grid-column: span 1;
+      }
+
       @media (max-width: 360px) {
         grid-template-columns: 1fr;
+        .flex-2, .flex-1 {
+          grid-column: span 1;
+        }
       }
     }
 
@@ -190,6 +215,12 @@ import { ColorPickerComponent } from '../../../shared/components/color-picker/co
         font-size: 14px;
         outline: none;
         color-scheme: dark;
+
+        &.center-text {
+          text-align: center;
+          letter-spacing: 2px;
+          font-weight: 700;
+        }
 
         &:focus {
           border-color: var(--color-champagne-main);
@@ -235,8 +266,11 @@ import { ColorPickerComponent } from '../../../shared/components/color-picker/co
     }
   `],
 })
-export class FormularioCartaoComponent {
+export class FormularioCartaoComponent implements OnInit {
+  isEdicao = false;
+  cartaoId = '';
   nome = '';
+  ultimosDigitos = '';
   limiteTotal: number | null = null;
   bandeira = 'MASTERCARD';
   diaFechamento = 25;
@@ -250,6 +284,21 @@ export class FormularioCartaoComponent {
     private readonly toast: ToastService,
   ) {}
 
+  ngOnInit(): void {
+    const data = this.overlay.activeOverlay()?.data as { cartao?: any } | undefined;
+    if (data?.cartao) {
+      this.isEdicao = true;
+      this.cartaoId = data.cartao.id;
+      this.nome = data.cartao.nome;
+      this.ultimosDigitos = data.cartao.ultimosDigitos || '';
+      this.limiteTotal = data.cartao.limiteTotal;
+      this.bandeira = data.cartao.bandeira || 'MASTERCARD';
+      this.diaFechamento = data.cartao.diaFechamento || 25;
+      this.diaVencimento = data.cartao.diaVencimento || 5;
+      this.cor = data.cartao.cor || '#820ad1';
+    }
+  }
+
   async salvar(): Promise<void> {
     if (!this.nome || !this.limiteTotal || this.limiteTotal <= 0) {
       this.toast.showWarning('Informe o nome e um limite válido.');
@@ -258,20 +307,40 @@ export class FormularioCartaoComponent {
 
     this.salvando.set(true);
 
-    const ok = await this.cartoesStore.criarCartao({
-      nome: this.nome,
-      limiteTotal: this.limiteTotal,
-      bandeira: this.bandeira,
-      diaFechamento: Number(this.diaFechamento),
-      diaVencimento: Number(this.diaVencimento),
-      cor: this.cor,
-    });
+    if (this.isEdicao && this.cartaoId) {
+      const ok = await this.cartoesStore.atualizarCartao(this.cartaoId, {
+        nome: this.nome,
+        ultimosDigitos: this.ultimosDigitos,
+        limiteTotal: this.limiteTotal,
+        bandeira: this.bandeira,
+        diaFechamento: Number(this.diaFechamento),
+        diaVencimento: Number(this.diaVencimento),
+        cor: this.cor,
+      });
 
-    this.salvando.set(false);
+      this.salvando.set(false);
 
-    if (ok) {
-      this.toast.showSuccess('Cartão de crédito cadastrado com sucesso!');
-      this.overlay.close(true);
+      if (ok) {
+        this.toast.showSuccess(`Cartão "${this.nome}" atualizado!`);
+        this.overlay.close(true);
+      }
+    } else {
+      const ok = await this.cartoesStore.criarCartao({
+        nome: this.nome,
+        ultimosDigitos: this.ultimosDigitos,
+        limiteTotal: this.limiteTotal,
+        bandeira: this.bandeira,
+        diaFechamento: Number(this.diaFechamento),
+        diaVencimento: Number(this.diaVencimento),
+        cor: this.cor,
+      });
+
+      this.salvando.set(false);
+
+      if (ok) {
+        this.toast.showSuccess('Cartão de crédito cadastrado com sucesso!');
+        this.overlay.close(true);
+      }
     }
   }
 
@@ -279,3 +348,4 @@ export class FormularioCartaoComponent {
     this.overlay.close(false);
   }
 }
+

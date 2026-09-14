@@ -44,8 +44,8 @@ import { InputComponent } from '../../../shared/components/input/input.component
         <app-input
           id="saldoInicial"
           label="Saldo Inicial de Abertura (R$)"
-          type="number"
-          placeholder="Ex: 1500.00"
+          type="currency"
+          placeholder="R$ 0,00"
           icon="attach_money"
           formControlName="saldoInicial">
         </app-input>

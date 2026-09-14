@@ -36,7 +36,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
     .financas-container {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      min-height: 100%;
       width: 100%;
       box-sizing: border-box;
     }
@@ -54,6 +54,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
       top: 0;
       z-index: 90;
       flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     }
 
     .sub-tab {

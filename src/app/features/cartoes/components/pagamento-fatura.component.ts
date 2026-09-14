@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
 import { CartoesStore } from '../store/cartoes.store';
 import { CarteirasStore } from '../../carteiras/store/carteiras.store';
 import { OverlayService } from '../../../core/services/overlay.service';
@@ -11,7 +12,7 @@ import { FaturaCartao } from '../../../core/models/cartao.models';
 @Component({
   selector: 'app-pagamento-fatura',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, DatePickerComponent],
   template: `
     <div class="form-container">
       <div class="form-header">
@@ -42,16 +43,13 @@ import { FaturaCartao } from '../../../core/models/cartao.models';
             </select>
           </div>
 
-          <div class="form-group">
-            <label for="dataPagamento">Data do Pagamento</label>
-            <input
-              id="dataPagamento"
-              type="date"
-              [(ngModel)]="dataPagamento"
-              name="dataPagamento"
-              required
-              class="input-field" />
-          </div>
+          <app-date-picker
+            id="dataPagamento"
+            label="Data do Pagamento"
+            [(ngModel)]="dataPagamento"
+            name="dataPagamento"
+            [required]="true">
+          </app-date-picker>
 
           <div class="form-actions">
             <app-button

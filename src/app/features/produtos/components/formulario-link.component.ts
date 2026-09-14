@@ -56,8 +56,8 @@ export interface FormularioLinkData {
         <app-input
           id="preco"
           label="Preço Atual da Oferta (R$)"
-          type="number"
-          placeholder="Ex: 299.90"
+          type="currency"
+          placeholder="R$ 0,00"
           icon="attach_money"
           formControlName="preco"
           [required]="true">

@@ -49,8 +49,8 @@ import { InputComponent } from '../../../shared/components/input/input.component
         <app-input
           id="valor"
           label="Valor a Transferir (R$)"
-          type="number"
-          placeholder="Ex: 500.00"
+          type="currency"
+          placeholder="R$ 0,00"
           icon="payments"
           formControlName="valor"
           [required]="true">

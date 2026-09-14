@@ -35,8 +35,8 @@ import { InputComponent } from '../../../shared/components/input/input.component
         <app-input
           id="preco"
           label="Preço Encontrado (R$)"
-          type="number"
-          placeholder="Ex: 1999.90"
+          type="currency"
+          placeholder="R$ 0,00"
           icon="attach_money"
           formControlName="preco"
           [required]="true">

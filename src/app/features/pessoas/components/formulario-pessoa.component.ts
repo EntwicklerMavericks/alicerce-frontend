@@ -70,8 +70,8 @@ import { InputComponent } from '../../../shared/components/input/input.component
             <app-input
               id="valorBase"
               [label]="tipoSalario === 'FIXO' ? 'Valor Bruto Mensal (R$)' : 'Valor Base (R$)'"
-              type="number"
-              placeholder="Ex: 8500.00"
+              type="currency"
+              placeholder="R$ 0,00"
               icon="attach_money"
               formControlName="valorBase"
               [required]="true">
@@ -83,8 +83,8 @@ import { InputComponent } from '../../../shared/components/input/input.component
               <app-input
                 id="valorHora"
                 label="Valor da Hora (R$)"
-                type="number"
-                placeholder="65.00"
+                type="currency"
+                placeholder="R$ 0,00"
                 icon="schedule"
                 formControlName="valorHora"
                 [required]="true">

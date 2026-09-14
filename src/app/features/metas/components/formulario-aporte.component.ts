@@ -7,12 +7,13 @@ import { ToastService } from '../../../core/services/toast.service';
 import { HapticsService } from '../../../core/platform/haptics.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { InputComponent } from '../../../shared/components/input/input.component';
+import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
 import { Meta } from '../../../core/models/meta.models';
 
 @Component({
   selector: 'app-formulario-aporte',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, ButtonComponent, InputComponent],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyPipe, ButtonComponent, InputComponent, DatePickerComponent],
   template: `
     <div class="form-sheet-container">
       <div class="sheet-title-box">
@@ -64,14 +65,12 @@ import { Meta } from '../../../core/models/meta.models';
           [required]="true">
         </app-input>
 
-        <app-input
+        <app-date-picker
           id="data"
           label="Data do Aporte"
-          type="date"
-          icon="calendar_today"
           formControlName="data"
           [required]="true">
-        </app-input>
+        </app-date-picker>
 
         <app-input
           id="observacao"

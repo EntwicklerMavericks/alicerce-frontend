@@ -80,4 +80,24 @@ export class CartoesStore {
       return false;
     }
   }
+
+  async atualizarCartao(id: string, dto: Partial<CriarCartaoRequest>): Promise<boolean> {
+    try {
+      await firstValueFrom(this.cartoesService.atualizarCartao(id, dto));
+      await this.carregarCartoes();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async removerCartao(id: string): Promise<boolean> {
+    try {
+      await firstValueFrom(this.cartoesService.removerCartao(id));
+      await this.carregarCartoes();
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

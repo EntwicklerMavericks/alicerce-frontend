@@ -2,14 +2,17 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { InputComponent } from '../../../shared/components/input/input.component';
+import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
 import { CartoesStore } from '../store/cartoes.store';
+import { CategoriasStore } from '../../categorias/store/categorias.store';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-formulario-compra-cartao',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, DatePickerComponent],
   template: `
     <div class="form-container">
       <div class="form-header">
@@ -46,18 +49,15 @@ import { ToastService } from '../../../core/services/toast.service';
         </div>
 
         <div class="form-row">
-          <div class="form-group">
-            <label for="valorTotal">Valor Total (R$)</label>
-            <input
-              id="valorTotal"
-              type="number"
-              step="0.01"
-              [(ngModel)]="valorTotal"
-              name="valorTotal"
-              placeholder="0,00"
-              required
-              class="input-field" />
-          </div>
+          <app-input
+            id="valorTotal"
+            label="Valor Total (R$)"
+            type="currency"
+            [(ngModel)]="valorTotal"
+            name="valorTotal"
+            placeholder="R$ 0,00"
+            [required]="true">
+          </app-input>
 
           <div class="form-group">
             <label for="qtdParcelas">Parcelas (x)</label>
@@ -75,24 +75,21 @@ import { ToastService } from '../../../core/services/toast.service';
         </div>
 
         <div class="form-row">
-          <div class="form-group">
-            <label for="dataCompra">Data da Compra</label>
-            <input
-              id="dataCompra"
-              type="date"
-              [(ngModel)]="dataCompra"
-              name="dataCompra"
-              required
-              class="input-field" />
-          </div>
+          <app-date-picker
+            id="dataCompra"
+            label="Data da Compra"
+            [(ngModel)]="dataCompra"
+            name="dataCompra"
+            [required]="true">
+          </app-date-picker>
 
           <div class="form-group">
             <label for="categoriaId">Categoria</label>
-            <select id="categoriaId" [(ngModel)]="categoriaId" name="categoriaId" class="input-field">
-              <option value="cat-compra-geral">Geral / Outros</option>
-              <option value="cat-mercado">Mercado</option>
-              <option value="cat-eletronicos">Eletrônicos</option>
-              <option value="cat-vestuario">Vestuário</option>
+            <select id="categoriaId" [(ngModel)]="categoriaId" name="categoriaId" class="input-field" required>
+              <option value="">Selecione uma categoria...</option>
+              @for (cat of categoriasStore.categoriasDespesa(); track cat.id) {
+                <option [value]="cat.id">{{ cat.nome }}</option>
+              }
             </select>
           </div>
         </div>
@@ -241,24 +238,31 @@ export class FormularioCompraCartaoComponent implements OnInit {
   valorTotal: number | null = null;
   qtdParcelas = 1;
   dataCompra = new Date().toISOString().substring(0, 10);
-  categoriaId = 'cat-compra-geral';
+  categoriaId = '';
   salvando = signal<boolean>(false);
 
   constructor(
     readonly cartoesStore: CartoesStore,
+    readonly categoriasStore: CategoriasStore,
     private readonly overlay: OverlayService,
     private readonly toast: ToastService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.cartoesStore.cartaoSelecionado()) {
       this.cartaoId = this.cartoesStore.cartaoSelecionado()!.id;
+    }
+
+    await this.categoriasStore.carregarCategorias();
+    const categorias = this.categoriasStore.categoriasDespesa();
+    if (categorias.length > 0 && !this.categoriaId) {
+      this.categoriaId = categorias[0].id;
     }
   }
 
   async salvar(): Promise<void> {
-    if (!this.cartaoId || !this.descricao || !this.valorTotal || this.valorTotal <= 0) {
-      this.toast.showWarning('Informe o cartão, a descrição e o valor da compra.');
+    if (!this.cartaoId || !this.descricao || !this.valorTotal || this.valorTotal <= 0 || !this.categoriaId) {
+      this.toast.showWarning('Informe o cartão, a categoria, a descrição e o valor da compra.');
       return;
     }
 
@@ -285,3 +289,4 @@ export class FormularioCompraCartaoComponent implements OnInit {
     this.overlay.close(false);
   }
 }
+

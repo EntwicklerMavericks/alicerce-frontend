@@ -38,4 +38,12 @@ export class CartoesService {
   pagarFatura(faturaId: string, dto: PagarFaturaRequest): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/faturas/${faturaId}/pagar`, dto);
   }
+
+  atualizarCartao(id: string, dto: Partial<CriarCartaoRequest>): Observable<CartaoCredito> {
+    return this.http.patch<CartaoCredito>(`${this.baseUrl}/cartoes/${id}`, dto);
+  }
+
+  removerCartao(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/cartoes/${id}`);
+  }
 }
