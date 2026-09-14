@@ -7,12 +7,14 @@ import { CarteirasStore } from '../../carteiras/store/carteiras.store';
 import { CategoriasStore } from '../../categorias/store/categorias.store';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { InputComponent } from '../../../shared/components/input/input.component';
+import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
 import { StatusLiquidacao } from '../../../core/models/lancamento.models';
 
 @Component({
   selector: 'app-formulario-receita',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, DatePickerComponent],
   template: `
     <div class="form-container">
       <div class="form-header">
@@ -39,29 +41,23 @@ import { StatusLiquidacao } from '../../../core/models/lancamento.models';
         </div>
 
         <div class="form-row">
-          <div class="form-group">
-            <label for="valor">Valor (R$)</label>
-            <input
-              id="valor"
-              type="number"
-              step="0.01"
-              [(ngModel)]="valor"
-              name="valor"
-              placeholder="0,00"
-              required
-              class="input-field" />
-          </div>
+          <app-input
+            id="valor"
+            label="Valor (R$)"
+            type="currency"
+            [(ngModel)]="valor"
+            name="valor"
+            placeholder="R$ 0,00"
+            [required]="true">
+          </app-input>
 
-          <div class="form-group">
-            <label for="data">Data de Recebimento</label>
-            <input
-              id="data"
-              type="date"
-              [(ngModel)]="data"
-              name="data"
-              required
-              class="input-field" />
-          </div>
+          <app-date-picker
+            id="data"
+            label="Data de Recebimento"
+            [(ngModel)]="data"
+            name="data"
+            [required]="true">
+          </app-date-picker>
         </div>
 
         <div class="form-group">

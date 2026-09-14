@@ -7,12 +7,13 @@ import { ToastService } from '../../../core/services/toast.service';
 import { HapticsService } from '../../../core/platform/haptics.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { InputComponent } from '../../../shared/components/input/input.component';
+import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
 import { ProjetoReadModel } from '../../../core/models/projeto.models';
 
 @Component({
   selector: 'app-formulario-projeto',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, InputComponent],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, InputComponent, DatePickerComponent],
   template: `
     <div class="form-sheet-container">
       <div class="sheet-title-box">
@@ -49,13 +50,11 @@ import { ProjetoReadModel } from '../../../core/models/projeto.models';
             [required]="true">
           </app-input>
 
-          <app-input
+          <app-date-picker
             id="prazoEstimado"
             label="Prazo Estimado de Conclusão"
-            type="date"
-            icon="event"
             formControlName="prazoEstimado">
-          </app-input>
+          </app-date-picker>
         </div>
 
         <!-- Seleção de Ícone -->

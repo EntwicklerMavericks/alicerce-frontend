@@ -7,12 +7,13 @@ import { ToastService } from '../../../core/services/toast.service';
 import { HapticsService } from '../../../core/platform/haptics.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { InputComponent } from '../../../shared/components/input/input.component';
+import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
 import { Meta } from '../../../core/models/meta.models';
 
 @Component({
   selector: 'app-formulario-meta',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, InputComponent],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, InputComponent, DatePickerComponent],
   template: `
     <div class="form-sheet-container">
       <div class="sheet-title-box">
@@ -61,14 +62,12 @@ import { Meta } from '../../../core/models/meta.models';
           }
         </div>
 
-        <app-input
+        <app-date-picker
           id="prazo"
           label="Prazo Final de Conclusão"
-          type="date"
-          icon="event"
           formControlName="prazo"
           [required]="true">
-        </app-input>
+        </app-date-picker>
 
         <!-- Seleção de Ícone -->
         <div class="field-group">
