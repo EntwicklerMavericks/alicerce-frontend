@@ -6,10 +6,14 @@ import { CartoesStore } from '../store/cartoes.store';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { ToastService } from '../../../core/services/toast.service';
 
+import { InputComponent } from '../../../shared/components/input/input.component';
+import { DayPickerComponent } from '../../../shared/components/day-picker/day-picker.component';
+import { ColorPickerComponent } from '../../../shared/components/color-picker/color-picker.component';
+
 @Component({
   selector: 'app-formulario-cartao',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, DayPickerComponent, ColorPickerComponent],
   template: `
     <div class="form-container">
       <div class="form-header">
@@ -36,18 +40,15 @@ import { ToastService } from '../../../core/services/toast.service';
         </div>
 
         <div class="form-row">
-          <div class="form-group">
-            <label for="limiteTotal">Limite Total (R$)</label>
-            <input
-              id="limiteTotal"
-              type="number"
-              step="100"
-              [(ngModel)]="limiteTotal"
-              name="limiteTotal"
-              placeholder="10.000,00"
-              required
-              class="input-field" />
-          </div>
+          <app-input
+            id="limiteTotal"
+            label="Limite Total (R$)"
+            type="currency"
+            [(ngModel)]="limiteTotal"
+            name="limiteTotal"
+            placeholder="R$ 0,00"
+            [required]="true">
+          </app-input>
 
           <div class="form-group">
             <label for="bandeira">Bandeira</label>
@@ -62,44 +63,30 @@ import { ToastService } from '../../../core/services/toast.service';
         </div>
 
         <div class="form-row">
-          <div class="form-group">
-            <label for="diaFechamento">Dia Fechamento</label>
-            <input
-              id="diaFechamento"
-              type="number"
-              min="1"
-              max="31"
-              [(ngModel)]="diaFechamento"
-              name="diaFechamento"
-              placeholder="Ex: 25"
-              required
-              class="input-field" />
-          </div>
+          <app-day-picker
+            id="diaFechamento"
+            label="Dia Fechamento"
+            [(ngModel)]="diaFechamento"
+            name="diaFechamento"
+            [required]="true">
+          </app-day-picker>
 
-          <div class="form-group">
-            <label for="diaVencimento">Dia Vencimento</label>
-            <input
-              id="diaVencimento"
-              type="number"
-              min="1"
-              max="31"
-              [(ngModel)]="diaVencimento"
-              name="diaVencimento"
-              placeholder="Ex: 5"
-              required
-              class="input-field" />
-          </div>
+          <app-day-picker
+            id="diaVencimento"
+            label="Dia Vencimento"
+            [(ngModel)]="diaVencimento"
+            name="diaVencimento"
+            [required]="true">
+          </app-day-picker>
         </div>
 
-        <div class="form-group">
-          <label for="cor">Cor do Card (Hex)</label>
-          <input
-            id="cor"
-            type="color"
-            [(ngModel)]="cor"
-            name="cor"
-            class="input-color-picker" />
-        </div>
+        <app-color-picker
+          id="cor"
+          label="Cor do Card"
+          [(ngModel)]="cor"
+          name="cor"
+          [cardName]="nome">
+        </app-color-picker>
 
         <div class="form-actions">
           <app-button
