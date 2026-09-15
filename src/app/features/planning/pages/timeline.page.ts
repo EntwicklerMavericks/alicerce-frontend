@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
   ApexAxisChartSeries,
@@ -32,7 +33,14 @@ export type ApexChartOptions = {
 @Component({
   selector: 'app-timeline-page',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule, ExplanationBreakdownComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    RouterLink,
+    RouterLinkActive,
+    NgApexchartsModule,
+    ExplanationBreakdownComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="timeline-container animate-fade-in">
@@ -56,6 +64,18 @@ export type ApexChartOptions = {
               <span>Recalcular</span>
             </button>
           </div>
+        </div>
+
+        <!-- Sub-Navigation Bar (Agenda vs Forecast) -->
+        <div class="subnav-tabs-bar">
+          <a routerLink="/futuro/planning/overview" routerLinkActive="active" class="subnav-tab">
+            <span class="material-symbols-rounded">calendar_month</span>
+            <span>Agenda & Vencimentos (30 dias)</span>
+          </a>
+          <a routerLink="/futuro/planning" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" class="subnav-tab">
+            <span class="material-symbols-rounded">show_chart</span>
+            <span>Projeção 12 Meses (Forecast)</span>
+          </a>
         </div>
 
         <!-- Metric Cards Bar (4 Sintéticas) -->
@@ -320,7 +340,7 @@ export type ApexChartOptions = {
       display: flex;
       flex-direction: column;
       gap: 24px;
-      padding: 20px 20px 120px 20px;
+      padding: 20px 20px calc(140px + var(--sab, 0px)) 20px;
       max-width: 1280px;
       margin: 0 auto;
       min-height: 100%;
@@ -409,6 +429,44 @@ export type ApexChartOptions = {
       }
 
       span { font-size: 18px; }
+    }
+
+    /* Subnav Tabs */
+    .subnav-tabs-bar {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid rgba(216, 184, 126, 0.2);
+      padding-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .subnav-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #9c8e7c;
+      text-decoration: none;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
+
+      span { font-size: 18px; }
+
+      &:hover {
+        background: rgba(201, 167, 78, 0.15);
+        color: #ebd9b6;
+      }
+
+      &.active {
+        background: var(--color-gold-gradient, linear-gradient(135deg, #d8b87e 0%, #c9a74e 100%));
+        color: #2b0b10;
+        border-color: #C9A74E;
+        box-shadow: 0 4px 14px rgba(201, 167, 78, 0.3);
+      }
     }
 
     /* Metric Box Grid */

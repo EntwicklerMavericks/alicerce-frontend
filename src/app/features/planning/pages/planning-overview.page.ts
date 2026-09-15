@@ -43,13 +43,13 @@ import { SaudeOrcamentosMetasComponent } from '../components/saude-orcamentos-me
 
         <!-- Sub-Navigation Bar (Overview vs Forecast 12M) -->
         <div class="subnav-tabs-bar">
-          <a routerLink="/planning/overview" routerLinkActive="active" class="subnav-tab">
-            <span class="material-symbols-rounded">dashboard</span>
-            <span>Visão Unificada (Overview)</span>
+          <a routerLink="/futuro/planning/overview" routerLinkActive="active" class="subnav-tab">
+            <span class="material-symbols-rounded">calendar_month</span>
+            <span>Agenda & Vencimentos (30 dias)</span>
           </a>
-          <a routerLink="/planning" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" class="subnav-tab">
+          <a routerLink="/futuro/planning" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" class="subnav-tab">
             <span class="material-symbols-rounded">show_chart</span>
-            <span>Projeção 12 Meses (Timeline)</span>
+            <span>Projeção 12 Meses (Forecast)</span>
           </a>
         </div>
 
@@ -142,7 +142,7 @@ import { SaudeOrcamentosMetasComponent } from '../components/saude-orcamentos-me
       display: flex;
       flex-direction: column;
       gap: 24px;
-      padding: 20px 20px 120px 20px;
+      padding: 20px 20px calc(140px + var(--sab, 0px)) 20px;
       max-width: 1280px;
       margin: 0 auto;
       min-height: 100%;
