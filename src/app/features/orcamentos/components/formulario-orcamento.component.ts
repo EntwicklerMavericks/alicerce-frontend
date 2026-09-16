@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OrcamentosStore } from '../store/orcamentos.store';
+import { CategoriasStore } from '../../categorias/store/categorias.store';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { HapticsService } from '../../../core/platform/haptics.service';
@@ -22,16 +23,11 @@ import { InputComponent } from '../../../shared/components/input/input.component
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="orcamento-form">
         <div class="field-group">
           <label class="field-label">Categoria de Despesa</label>
-          <select formControlName="categoria" class="custom-select">
-            <option value="Alimentação & Supermercado">Alimentação & Supermercado</option>
-            <option value="Moradia & Contas">Moradia & Contas</option>
-            <option value="Transporte & Combustível">Transporte & Combustível</option>
-            <option value="Lazer & Cultura">Lazer & Cultura</option>
-            <option value="Saúde & Farmácia">Saúde & Farmácia</option>
-            <option value="Educação & Cursos">Educação & Cursos</option>
-
-            <option value="Compras & Vestuário">Compras & Vestuário</option>
-            <option value="Outros / Diversos">Outros / Diversos</option>
+          <select formControlName="categoriaId" class="custom-select" (change)="onCategoriaChange()">
+            <option value="">Selecione uma categoria...</option>
+            @for (cat of categoriasStore.categoriasDespesa(); track cat.id) {
+              <option [value]="cat.id">{{ cat.nome }}</option>
+            }
           </select>
         </div>
 
@@ -159,8 +155,9 @@ import { InputComponent } from '../../../shared/components/input/input.component
     }
   `],
 })
-export class FormularioOrcamentoComponent {
+export class FormularioOrcamentoComponent implements OnInit {
   readonly orcamentosStore = inject(OrcamentosStore);
+  readonly categoriasStore = inject(CategoriasStore);
   private readonly overlayService = inject(OverlayService);
   private readonly toastService = inject(ToastService);
   private readonly haptics = inject(HapticsService);
@@ -182,12 +179,31 @@ export class FormularioOrcamentoComponent {
   ];
 
   readonly form: FormGroup = this.fb.group({
-    categoria: ['Alimentação & Supermercado', [Validators.required]],
-    valorTeto: ['', [Validators.required, Validators.min(1)]],
+    categoriaId: ['', [Validators.required]],
+    valorTeto: ['', [Validators.required, Validators.min(0.01)]],
     mesAno: [this.orcamentosStore.mesAnoSelecionado(), [Validators.required]],
     icone: ['restaurant'],
     cor: ['#C9A74E'],
   });
+
+  ngOnInit(): void {
+    if (this.categoriasStore.categorias().length === 0) {
+      this.categoriasStore.carregarCategorias();
+    }
+  }
+
+  onCategoriaChange(): void {
+    const catId = this.form.value.categoriaId;
+    if (catId) {
+      const cat = this.categoriasStore.categorias().find((c) => c.id === catId);
+      if (cat) {
+        this.form.patchValue({
+          icone: cat.icone || 'category',
+          cor: cat.cor || '#C9A74E',
+        });
+      }
+    }
+  }
 
   selecionarIcone(ic: string): void {
     this.form.patchValue({ icone: ic });
@@ -198,17 +214,34 @@ export class FormularioOrcamentoComponent {
       this.haptics.impactMedium();
       const val = this.form.value;
 
+      let ano = new Date().getFullYear();
+      let mes = new Date().getMonth() + 1;
+      if (val.mesAno && val.mesAno.includes('-')) {
+        const parts = val.mesAno.split('-');
+        ano = parseInt(parts[0], 10);
+        mes = parseInt(parts[1], 10);
+      }
+
+      const catEncontrada = this.categoriasStore.categorias().find((c) => c.id === val.categoriaId);
+
       const ok = await this.orcamentosStore.criarOrcamento({
-        categoria: val.categoria,
+        categoriaId: val.categoriaId,
+        categoria: catEncontrada?.nome || 'Categoria',
+        mes,
+        ano,
+        teto: Number(val.valorTeto),
         valorTeto: Number(val.valorTeto),
         mesAno: val.mesAno,
-        icone: val.icone,
-        cor: val.cor,
+        icone: val.icone || catEncontrada?.icone,
+        cor: val.cor || catEncontrada?.cor,
       });
 
       if (ok) {
-        this.toastService.showSuccess(`Orçamento para "${val.categoria}" definido!`);
+        this.toastService.showSuccess(`Orçamento para "${catEncontrada?.nome || 'Categoria'}" definido!`);
         this.overlayService.close({ saved: true });
+      } else {
+        const msg = this.orcamentosStore.erro() || 'Erro ao definir orçamento.';
+        this.toastService.showError(msg);
       }
     } else {
       this.form.markAllAsTouched();

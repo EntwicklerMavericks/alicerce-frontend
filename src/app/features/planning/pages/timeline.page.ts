@@ -663,6 +663,11 @@ export type ApexChartOptions = {
     .chart-wrapper {
       margin-top: 8px;
       min-height: 320px;
+      touch-action: pan-y;
+
+      ::ng-deep .apexcharts-canvas {
+        touch-action: pan-y;
+      }
     }
 
     /* Table Section */
@@ -1090,6 +1095,8 @@ export class TimelinePage implements OnInit {
           type: 'bar',
           height: 320,
           toolbar: { show: false },
+          zoom: { enabled: false },
+          selection: { enabled: false },
           background: 'transparent',
         },
         colors: ['#10b981', '#A13D63'],
@@ -1124,6 +1131,8 @@ export class TimelinePage implements OnInit {
         type: 'area',
         height: 320,
         toolbar: { show: false },
+        zoom: { enabled: false },
+        selection: { enabled: false },
         background: 'transparent',
       },
       colors: ['#C9A74E'],

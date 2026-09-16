@@ -3,11 +3,14 @@ export type StatusOrcamento = 'NORMAL' | 'ALERTA' | 'ATENCAO' | 'EXCEDIDO';
 export interface Orcamento {
   id: string;
   workspaceId: string;
+  categoriaId?: string;
   categoria: string;
   valorTeto: number;
   valorGasto: number;
   percentualConsumido: number;
   mesAno: string; // Formato YYYY-MM
+  mes?: number;
+  ano?: number;
   status: StatusOrcamento;
   cor?: string;
   icone?: string;
@@ -16,9 +19,14 @@ export interface Orcamento {
 }
 
 export interface CriarOrcamentoDto {
-  categoria: string;
-  valorTeto: number;
-  mesAno: string; // YYYY-MM
+  categoriaId: string;
+  mes: number;
+  ano: number;
+  teto: number;
+  valorPlanejado?: number;
+  valorTeto?: number;
+  categoria?: string;
+  mesAno?: string;
   cor?: string;
   icone?: string;
 }
