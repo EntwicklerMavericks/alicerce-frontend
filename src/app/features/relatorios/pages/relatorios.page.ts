@@ -689,8 +689,8 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
     .widget-card { display: flex; flex-direction: column; gap: 14px; }
     .widget-header { display: flex; justify-content: space-between; align-items: center; h3 { font-size: 16px; font-weight: 700; color: #FFF; margin: 0; } }
     .widget-title-group { display: flex; align-items: center; gap: 10px; }
-    .widget-subtitle { margin: 2px 0 0 0; font-size: 11px; color: rgba(255, 255, 255, 0.5); }
-    .chart-wrapper { width: 100%; min-height: 320px; }
+    .chart-wrapper { width: 100%; min-height: 320px; touch-action: pan-y; }
+    ::ng-deep .apexcharts-canvas { touch-action: pan-y !important; }
 
     /* Categories Tab Layout */
     .categories-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -754,8 +754,8 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
 export class RelatoriosPage {
   public readonly store = inject(RelatoriosStore);
 
-  public dataInicio = '2026-08-01';
-  public dataFim = '2026-08-31';
+  public dataInicio = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+  public dataFim = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
   public readonly periodosDisponiveis: Array<{ label: string; value: TipoPeriodoRelatorio }> = [
     { label: 'Mês Atual', value: 'MES_ATUAL' },
@@ -778,6 +778,8 @@ export class RelatoriosPage {
     height: 320,
     toolbar: { show: false },
     background: 'transparent',
+    zoom: { enabled: false },
+    selection: { enabled: false },
   };
 
   public readonly chartFluxoColors = ['#10B981', '#A13D63', '#C9A74E'];
@@ -843,18 +845,26 @@ export class RelatoriosPage {
     type: 'donut',
     height: 280,
     background: 'transparent',
+    zoom: { enabled: false },
+    selection: { enabled: false },
   };
 
   public readonly chartDonutSeries = computed<ApexNonAxisChartSeries>(() => {
-    return this.store.distribuicaoDespesas().map((d) => d.valor);
+    const dist = this.store.distribuicaoDespesas();
+    if (dist.length === 0) return [1];
+    return dist.map((d) => d.valor);
   });
 
   public readonly chartDonutLabels = computed<string[]>(() => {
-    return this.store.distribuicaoDespesas().map((d) => d.nome);
+    const dist = this.store.distribuicaoDespesas();
+    if (dist.length === 0) return ['Nenhum gasto registrado'];
+    return dist.map((d) => d.nome);
   });
 
   public readonly chartDonutColors = computed<string[]>(() => {
-    return this.store.distribuicaoDespesas().map((d) => d.cor || '#C9A74E');
+    const dist = this.store.distribuicaoDespesas();
+    if (dist.length === 0) return ['rgba(255, 255, 255, 0.15)'];
+    return dist.map((d) => d.cor || '#C9A74E');
   });
 
   public readonly chartDonutLegend: ApexLegend = {
@@ -897,6 +907,8 @@ export class RelatoriosPage {
     height: 300,
     toolbar: { show: false },
     background: 'transparent',
+    zoom: { enabled: false },
+    selection: { enabled: false },
   };
 
   public readonly chartCartoesColors = ['#C9A74E', '#A13D63', '#10B981'];
@@ -945,6 +957,8 @@ export class RelatoriosPage {
     height: 300,
     toolbar: { show: false },
     background: 'transparent',
+    zoom: { enabled: false },
+    selection: { enabled: false },
   };
 
   public readonly chartMetasColors = ['#C9A74E', '#A13D63'];

@@ -305,7 +305,7 @@ export class RelatoriosStore {
   );
 
   constructor() {
-    this.carregarRelatorios();
+    this.setTipoPeriodo('MES_ATUAL');
   }
 
   setAbaAtiva(aba: AbaRelatorio): void {
@@ -313,17 +313,64 @@ export class RelatoriosStore {
   }
 
   setTipoPeriodo(tipo: TipoPeriodoRelatorio): void {
-    this.filtroPeriodo.update((f) => ({ ...f, tipoPeriodo: tipo }));
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = agora.getMonth();
+
+    let inicio: string | undefined;
+    let fim: string | undefined;
+
+    switch (tipo) {
+      case 'MES_ATUAL': {
+        const dInicio = new Date(ano, mes, 1);
+        const dFim = new Date(ano, mes + 1, 0);
+        inicio = this.formatarDataYMD(dInicio);
+        fim = this.formatarDataYMD(dFim);
+        break;
+      }
+      case 'ULTIMOS_30_DIAS': {
+        const dInicio = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
+        inicio = this.formatarDataYMD(dInicio);
+        fim = this.formatarDataYMD(agora);
+        break;
+      }
+      case 'ULTIMOS_3_MESES': {
+        const dInicio = new Date(ano, mes - 2, 1);
+        const dFim = new Date(ano, mes + 1, 0);
+        inicio = this.formatarDataYMD(dInicio);
+        fim = this.formatarDataYMD(dFim);
+        break;
+      }
+      case 'ULTIMOS_6_MESES': {
+        const dInicio = new Date(ano, mes - 5, 1);
+        const dFim = new Date(ano, mes + 1, 0);
+        inicio = this.formatarDataYMD(dInicio);
+        fim = this.formatarDataYMD(dFim);
+        break;
+      }
+      case 'ANO_ATUAL': {
+        const dInicio = new Date(ano, 0, 1);
+        const dFim = new Date(ano, 11, 31);
+        inicio = this.formatarDataYMD(dInicio);
+        fim = this.formatarDataYMD(dFim);
+        break;
+      }
+    }
+
+    this.filtroPeriodo.set({
+      tipoPeriodo: tipo,
+      inicio,
+      fim,
+    });
     this.carregarRelatorios();
   }
 
   setDatasPersonalizadas(inicio: string, fim: string): void {
-    this.filtroPeriodo.update((f) => ({
-      ...f,
+    this.filtroPeriodo.set({
       tipoPeriodo: 'PERSONALIZADO',
       inicio,
       fim,
-    }));
+    });
     this.carregarRelatorios();
   }
 
@@ -334,18 +381,138 @@ export class RelatoriosStore {
     const filtro = this.filtroPeriodo();
 
     try {
-      const result = await firstValueFrom(this.api.obterRelatorios(filtro));
-      if (result) {
-        this.relatorioResult.set(result);
+      const res: any = await firstValueFrom(this.api.obterRelatorios(filtro));
+      if (res) {
+        const fc = res.fluxoCaixa || {};
+        const totalReceitas = fc.totalReceitas ?? fc.entradas ?? 0;
+        const totalDespesas = fc.totalDespesas ?? fc.saidas ?? 0;
+        const saldoLiquido = fc.saldoLiquido ?? fc.resultadoPeriodo ?? (totalReceitas - totalDespesas);
+        const taxaPoupanca = fc.taxaPoupanca ?? (totalReceitas > 0 ? Number((Math.max(0, (totalReceitas - totalDespesas) / totalReceitas) * 100).toFixed(1)) : 0);
+
+        // Categorias normalization
+        const rawCats = res.categorias;
+        const distDesp = Array.isArray(rawCats)
+          ? rawCats.map((c: any) => ({
+              categoriaId: c.categoriaId || c.id,
+              nome: c.nome,
+              icone: c.icone || 'category',
+              cor: c.cor || '#C9A74E',
+              valor: Number(c.valor || 0),
+              percentual: Number(c.percentual || 0),
+              quantidadeLancamentos: c.quantidadeLancamentos ?? 1,
+            }))
+          : (rawCats?.distribuicaoDespesas || []);
+
+        const topDesp = res.topDespesas || (rawCats as any)?.topDespesas || [];
+
+        // Cartões normalization
+        const rawCartoes = res.cartoes;
+        const usoCartoes = Array.isArray(rawCartoes)
+          ? rawCartoes.map((c: any) => ({
+              cartaoId: c.cartaoId || c.id,
+              nomeCartao: c.nomeCartao || c.nome,
+              bandeira: c.bandeira,
+              cor: c.cor || '#C9A74E',
+              limiteTotal: c.limiteTotal ?? 10000,
+              limiteUsado: c.limiteUsado ?? c.valorTotal ?? 0,
+              percentualUso: c.percentualUso ?? (c.limiteTotal > 0 ? (c.valorTotal / c.limiteTotal) * 100 : 0),
+              valorFaturaAtual: c.valorFaturaAtual ?? c.valorTotal ?? 0,
+            }))
+          : (rawCartoes?.usoPorCartao || []);
+
+        // Metas e Projetos normalization
+        const rawMP = res.metasProjetos;
+        let metasStatusList: any[] = [];
+        let projetosStatusList: any[] = [];
+
+        if (Array.isArray(rawMP)) {
+          metasStatusList = rawMP
+            .filter((x: any) => x.tipo === 'META')
+            .map((m: any) => ({
+              metaId: m.id,
+              nome: m.nome,
+              valorAtual: m.valorAtual ?? m.valorAtualOuGasto ?? 0,
+              valorAlvo: m.valorAlvo ?? m.valorAlvoOuEstimado ?? 0,
+              percentualConcluido: m.percentualConcluido ?? m.progressoPercentual ?? 0,
+              status: m.status,
+            }));
+
+          projetosStatusList = rawMP
+            .filter((x: any) => x.tipo === 'PROJETO')
+            .map((p: any) => ({
+              projetoId: p.id,
+              titulo: p.titulo ?? p.nome,
+              orcamentoTotal: p.orcamentoTotal ?? p.valorAlvoOuEstimado ?? 0,
+              valorGasto: p.valorGasto ?? p.valorAtualOuGasto ?? 0,
+              percentualProgresso: p.percentualProgresso ?? p.progressoPercentual ?? 0,
+              status: p.status,
+            }));
+        } else if (rawMP) {
+          metasStatusList = rawMP.metasStatus || [];
+          projetosStatusList = rawMP.projetosStatus || [];
+        }
+
+        const totalAportado = metasStatusList.reduce((acc, m) => acc + (m.valorAtual || 0), 0);
+        const progressoGeral = metasStatusList.length > 0
+          ? metasStatusList.reduce((acc, m) => acc + (m.percentualConcluido || 0), 0) / metasStatusList.length
+          : 0;
+        const totalProjetos = projetosStatusList.reduce((acc, p) => acc + (p.valorGasto || 0), 0);
+
+        const totalFaturas = usoCartoes.reduce((acc: number, c: any) => acc + (c.valorFaturaAtual || 0), 0);
+        const totalLimite = usoCartoes.reduce((acc: number, c: any) => acc + (c.limiteUsado || 0), 0);
+
+        const normalized: RelatoriosResult = {
+          periodo: res.periodo || filtro,
+          fluxoCaixa: {
+            totalReceitas,
+            totalDespesas,
+            saldoLiquido,
+            taxaPoupanca,
+            historicoDiario: fc.historicoDiario || [],
+            comparativoMesAnterior: fc.comparativoMesAnterior || {
+              receitaVariacaoPct: 0,
+              despesaVariacaoPct: 0,
+              saldoVariacaoPct: 0,
+            },
+          },
+          categorias: {
+            distribuicaoDespesas: distDesp,
+            distribuicaoReceitas: (rawCats as any)?.distribuicaoReceitas || [],
+            topDespesas: topDesp,
+          },
+          cartoes: {
+            totalFaturas: res.totalFaturas ?? totalFaturas,
+            totalLimiteComprometido: res.totalLimiteComprometido ?? totalLimite,
+            usoPorCartao: usoCartoes,
+            projecaoProximasFaturas: res.projecaoProximasFaturas || (rawCartoes as any)?.projecaoProximasFaturas || [],
+          },
+          metasProjetos: {
+            totalAportadoMetas: res.totalAportadoMetas ?? totalAportado,
+            progressoGeralMetasPct: res.progressoGeralMetasPct ?? progressoGeral,
+            totalInvestidoProjetos: res.totalInvestidoProjetos ?? totalProjetos,
+            metasStatus: metasStatusList,
+            projetosStatus: projetosStatusList,
+          },
+          geradoEm: res.geradoEm || new Date().toISOString(),
+        };
+
+        this.relatorioResult.set(normalized);
       } else {
         this.relatorioResult.set(MOCK_RELATORIOS_FALLBACK);
       }
     } catch (err) {
-      // Fallback em desenvolvimento ou indisponibilidade da API
+      console.warn('Fallback ativado por indisponibilidade:', err);
       this.relatorioResult.set(MOCK_RELATORIOS_FALLBACK);
     } finally {
       this.carregando.set(false);
     }
+  }
+
+  private formatarDataYMD(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   async baixarPdf(): Promise<void> {

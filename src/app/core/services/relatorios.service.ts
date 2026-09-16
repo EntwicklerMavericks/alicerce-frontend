@@ -45,8 +45,14 @@ export class RelatoriosService {
     if (!filtro) return params;
 
     if (filtro.tipoPeriodo) params = params.set('tipoPeriodo', filtro.tipoPeriodo);
-    if (filtro.inicio) params = params.set('inicio', filtro.inicio);
-    if (filtro.fim) params = params.set('fim', filtro.fim);
+    if (filtro.inicio) {
+      params = params.set('dataInicio', filtro.inicio);
+      params = params.set('inicio', filtro.inicio);
+    }
+    if (filtro.fim) {
+      params = params.set('dataFim', filtro.fim);
+      params = params.set('fim', filtro.fim);
+    }
     if (filtro.categoriaId) params = params.set('categoriaId', filtro.categoriaId);
     if (filtro.carteiraId) params = params.set('carteiraId', filtro.carteiraId);
     if (filtro.cartaoId) params = params.set('cartaoId', filtro.cartaoId);
