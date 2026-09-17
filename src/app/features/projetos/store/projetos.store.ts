@@ -220,7 +220,16 @@ export class ProjetosStore {
     }
   }
 
-  private adicionarEtapaLocal(projetoId: string, etapa: EtapaProjeto): void {
+  private adicionarEtapaLocal(projetoId: string, etapa: any): void {
+    if (etapa && Array.isArray(etapa.etapas)) {
+      const processado = this.processarProjeto(etapa);
+      this.projetos.update((list) => list.map((p) => (p.id === projetoId ? processado : p)));
+      if (this.projetoSelecionado()?.id === projetoId) {
+        this.projetoSelecionado.set(processado);
+      }
+      return;
+    }
+
     this.projetos.update((list) =>
       list.map((p) => {
         if (p.id === projetoId) {
@@ -246,7 +255,16 @@ export class ProjetosStore {
   ): Promise<boolean> {
     this.carregando.set(true);
     try {
-      await firstValueFrom(this.api.atualizarEtapa(projetoId, etapaId, dto));
+      const res = await firstValueFrom(this.api.atualizarEtapa(projetoId, etapaId, dto));
+      if (res && Array.isArray((res as any).etapas)) {
+        const processado = this.processarProjeto(res as any);
+        this.projetos.update((list) => list.map((p) => (p.id === projetoId ? processado : p)));
+        if (this.projetoSelecionado()?.id === projetoId) {
+          this.projetoSelecionado.set(processado);
+        }
+        this.carregando.set(false);
+        return true;
+      }
     } catch (_) {
       // Ignora erro backend e atualiza localmente
     }
