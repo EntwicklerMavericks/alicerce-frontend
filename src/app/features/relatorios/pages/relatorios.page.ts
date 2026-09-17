@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -256,19 +256,26 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
           </div>
 
           <div class="chart-wrapper">
-            <apx-chart
-              [series]="chartFluxoSeries()"
-              [chart]="chartFluxoConfig"
-              [xaxis]="chartFluxoXAxis()"
-              [yaxis]="chartFluxoYAxis"
-              [stroke]="chartFluxoStroke"
-              [tooltip]="chartFluxoTooltip"
-              [dataLabels]="chartFluxoDataLabels"
-              [colors]="chartFluxoColors"
-              [grid]="chartFluxoGrid"
-              [plotOptions]="chartFluxoPlotOptions"
-              [legend]="chartLegend"
-            ></apx-chart>
+            @if (store.historicoDiario().length > 0) {
+              <apx-chart
+                [series]="chartFluxoOptions().series"
+                [chart]="chartFluxoOptions().chart"
+                [xaxis]="chartFluxoOptions().xaxis"
+                [yaxis]="chartFluxoOptions().yaxis"
+                [stroke]="chartFluxoOptions().stroke"
+                [tooltip]="chartFluxoOptions().tooltip"
+                [dataLabels]="chartFluxoOptions().dataLabels"
+                [colors]="chartFluxoOptions().colors"
+                [grid]="chartFluxoOptions().grid"
+                [plotOptions]="chartFluxoOptions().plotOptions"
+                [legend]="chartLegend"
+              ></apx-chart>
+            } @else {
+              <div class="empty-chart-state">
+                <span class="material-symbols-rounded">show_chart</span>
+                <p>Nenhuma movimentação registrada no período selecionado.</p>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -289,16 +296,23 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
             </div>
 
             <div class="donut-chart-container">
-              <apx-chart
-                [series]="chartDonutSeries()"
-                [chart]="chartDonutConfig"
-                [labels]="chartDonutLabels()"
-                [colors]="chartDonutColors()"
-                [legend]="chartDonutLegend"
-                [tooltip]="chartDonutTooltip"
-                [plotOptions]="chartDonutPlotOptions"
-                [dataLabels]="chartDonutDataLabels"
-              ></apx-chart>
+              @if (store.distribuicaoDespesas().length > 0) {
+                <apx-chart
+                  [series]="chartDonutSeries()"
+                  [chart]="chartDonutConfig"
+                  [labels]="chartDonutLabels()"
+                  [colors]="chartDonutColors()"
+                  [legend]="chartDonutLegend"
+                  [tooltip]="chartDonutTooltip"
+                  [plotOptions]="chartDonutPlotOptions"
+                  [dataLabels]="chartDonutDataLabels"
+                ></apx-chart>
+              } @else {
+                <div class="empty-chart-state">
+                  <span class="material-symbols-rounded">pie_chart</span>
+                  <p>Nenhuma despesa por categoria registrada no período.</p>
+                </div>
+              }
             </div>
           </div>
 
@@ -421,17 +435,24 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
           </div>
 
           <div class="chart-wrapper">
-            <apx-chart
-              [series]="chartCartoesSeries()"
-              [chart]="chartCartoesConfig"
-              [xaxis]="chartCartoesXAxis()"
-              [yaxis]="chartCartoesYAxis"
-              [colors]="chartCartoesColors"
-              [plotOptions]="chartCartoesPlotOptions"
-              [grid]="chartFluxoGrid"
-              [legend]="chartLegend"
-              [tooltip]="chartFluxoTooltip"
-            ></apx-chart>
+            @if (store.usoPorCartao().length > 0) {
+              <apx-chart
+                [series]="chartCartoesSeries()"
+                [chart]="chartCartoesConfig"
+                [xaxis]="chartCartoesXAxis()"
+                [yaxis]="chartCartoesYAxis"
+                [colors]="chartCartoesColors"
+                [plotOptions]="chartCartoesPlotOptions"
+                [grid]="chartFluxoGrid"
+                [legend]="chartLegend"
+                [tooltip]="chartFluxoTooltip"
+              ></apx-chart>
+            } @else {
+              <div class="empty-chart-state">
+                <span class="material-symbols-rounded">credit_card_off</span>
+                <p>Nenhum cartão com movimentação no período.</p>
+              </div>
+            }
           </div>
         </div>
 
@@ -517,17 +538,24 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
           </div>
 
           <div class="chart-wrapper">
-            <apx-chart
-              [series]="chartMetasSeries()"
-              [chart]="chartMetasConfig"
-              [xaxis]="chartMetasXAxis()"
-              [yaxis]="chartMetasYAxis"
-              [colors]="chartMetasColors"
-              [plotOptions]="chartMetasPlotOptions"
-              [grid]="chartFluxoGrid"
-              [legend]="chartLegend"
-              [tooltip]="chartFluxoTooltip"
-            ></apx-chart>
+            @if (store.metasStatus().length > 0 || store.projetosStatus().length > 0) {
+              <apx-chart
+                [series]="chartMetasSeries()"
+                [chart]="chartMetasConfig"
+                [xaxis]="chartMetasXAxis()"
+                [yaxis]="chartMetasYAxis"
+                [colors]="chartMetasColors"
+                [plotOptions]="chartMetasPlotOptions"
+                [grid]="chartFluxoGrid"
+                [legend]="chartLegend"
+                [tooltip]="chartFluxoTooltip"
+              ></apx-chart>
+            } @else {
+              <div class="empty-chart-state">
+                <span class="material-symbols-rounded">flag</span>
+                <p>Nenhuma meta ou projeto cadastrado.</p>
+              </div>
+            }
           </div>
         </div>
 
@@ -744,6 +772,29 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
     .item-footer { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255, 255, 255, 0.6); }
     .pct-text { font-weight: 800; color: #C9A74E; }
 
+    .empty-chart-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      gap: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      min-height: 280px;
+
+      span.material-symbols-rounded {
+        font-size: 44px;
+        color: rgba(201, 167, 78, 0.4);
+      }
+
+      p {
+        margin: 0;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+      }
+    }
+
     @media (max-width: 1024px) {
       .executive-header { flex-direction: column; align-items: flex-start; gap: 14px; }
       .export-action-bar { flex-direction: column; align-items: flex-start; .export-buttons-group { width: 100%; .export-btn { flex: 1; justify-content: center; } } }
@@ -751,8 +802,14 @@ import { TipoPeriodoRelatorio } from '../../../core/models/relatorios.models';
     }
   `],
 })
-export class RelatoriosPage {
+export class RelatoriosPage implements OnInit {
   public readonly store = inject(RelatoriosStore);
+
+  ngOnInit(): void {
+    if (!this.store.relatorioResult() && !this.store.carregando()) {
+      this.store.carregarRelatorios();
+    }
+  }
 
   public dataInicio = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
   public dataFim = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
@@ -773,8 +830,123 @@ export class RelatoriosPage {
   };
 
   // --- TAB 1: FLUXO DE CAIXA CHART CONFIG ---
+  public readonly chartFluxoOptions = computed<{
+    series: ApexAxisChartSeries;
+    chart: ApexChart;
+    colors: string[];
+    stroke: ApexStroke;
+    plotOptions: ApexPlotOptions;
+    dataLabels: ApexDataLabels;
+    xaxis: ApexXAxis;
+    yaxis: ApexYAxis;
+    grid: ApexGrid;
+    tooltip: ApexTooltip;
+    legend: ApexLegend;
+  }>(() => {
+    const hist = this.store.historicoDiario();
+    const categories = hist.map((h) => h.data);
+
+    const series: ApexAxisChartSeries = [
+      {
+        name: 'Receitas',
+        type: 'column',
+        data: hist.map((h) => h.receita),
+      },
+      {
+        name: 'Despesas',
+        type: 'column',
+        data: hist.map((h) => h.despesa),
+      },
+      {
+        name: 'Saldo Acumulado',
+        type: 'line',
+        data: hist.map((h) => h.saldoAcumulado),
+      },
+    ];
+
+    const chart: ApexChart = {
+      type: 'line',
+      height: 320,
+      toolbar: { show: false },
+      background: 'transparent',
+      zoom: { enabled: false },
+      selection: { enabled: false },
+    };
+
+    const stroke: ApexStroke = {
+      width: [0, 0, 3],
+      curve: 'smooth',
+    };
+
+    const plotOptions: ApexPlotOptions = {
+      bar: {
+        columnWidth: '40%',
+        borderRadius: 4,
+      },
+    };
+
+    const dataLabels: ApexDataLabels = {
+      enabled: false,
+    };
+
+    const xaxis: ApexXAxis = {
+      categories,
+      labels: {
+        style: { colors: 'rgba(255, 255, 255, 0.6)', fontSize: '11px', fontFamily: 'Outfit' },
+      },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    };
+
+    const yaxis: ApexYAxis = {
+      labels: {
+        style: { colors: 'rgba(255, 255, 255, 0.6)', fontSize: '11px', fontFamily: 'Space Grotesk' },
+        formatter: (val: number) => {
+          if (val === undefined || val === null || isNaN(val)) return 'R$ 0';
+          return `R$ ${Math.round(val).toLocaleString('pt-BR')}`;
+        },
+      },
+    };
+
+    const grid: ApexGrid = {
+      borderColor: 'rgba(201, 167, 78, 0.1)',
+      strokeDashArray: 4,
+    };
+
+    const tooltip: ApexTooltip = {
+      theme: 'dark',
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: (val: number) => {
+          if (val === undefined || val === null || isNaN(val)) return 'R$ 0,00';
+          return `R$ ${Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        },
+      },
+    };
+
+    const legend: ApexLegend = {
+      position: 'top',
+      labels: { colors: 'rgba(255, 255, 255, 0.7)' },
+    };
+
+    return {
+      series,
+      chart,
+      colors: ['#10B981', '#A13D63', '#C9A74E'],
+      stroke,
+      plotOptions,
+      dataLabels,
+      xaxis,
+      yaxis,
+      grid,
+      tooltip,
+      legend,
+    };
+  });
+
   public readonly chartFluxoConfig: ApexChart = {
-    type: 'bar',
+    type: 'line',
     height: 320,
     toolbar: { show: false },
     background: 'transparent',
@@ -785,37 +957,20 @@ export class RelatoriosPage {
   public readonly chartFluxoColors = ['#10B981', '#A13D63', '#C9A74E'];
 
   public readonly chartFluxoSeries = computed<ApexAxisChartSeries>(() => {
-    const hist = this.store.historicoDiario();
-    return [
-      {
-        name: 'Receitas',
-        data: hist.map((h) => h.receita),
-      },
-      {
-        name: 'Despesas',
-        data: hist.map((h) => h.despesa),
-      },
-      {
-        name: 'Saldo Acumulado',
-        type: 'line',
-        data: hist.map((h) => h.saldoAcumulado),
-      },
-    ];
+    return this.chartFluxoOptions().series;
   });
 
-  public readonly chartFluxoXAxis = computed<ApexXAxis>(() => ({
-    categories: this.store.historicoDiario().map((h) => h.data),
-    labels: {
-      style: { colors: 'rgba(255, 255, 255, 0.6)', fontSize: '11px', fontFamily: 'Outfit' },
-    },
-    axisBorder: { show: false },
-    axisTicks: { show: false },
-  }));
+  public readonly chartFluxoXAxis = computed<ApexXAxis>(() => {
+    return this.chartFluxoOptions().xaxis;
+  });
 
   public readonly chartFluxoYAxis: ApexYAxis = {
     labels: {
       style: { colors: 'rgba(255, 255, 255, 0.6)', fontSize: '11px', fontFamily: 'Space Grotesk' },
-      formatter: (val) => `R$ ${val.toLocaleString('pt-BR')}`,
+      formatter: (val) => {
+        if (val === undefined || val === null || isNaN(val)) return 'R$ 0';
+        return `R$ ${Math.round(val).toLocaleString('pt-BR')}`;
+      },
     },
   };
 
@@ -826,7 +981,7 @@ export class RelatoriosPage {
 
   public readonly chartFluxoPlotOptions: ApexPlotOptions = {
     bar: {
-      columnWidth: '45%',
+      columnWidth: '40%',
       borderRadius: 4,
     },
   };
@@ -838,7 +993,17 @@ export class RelatoriosPage {
     strokeDashArray: 4,
   };
 
-  public readonly chartFluxoTooltip: ApexTooltip = { theme: 'dark' };
+  public readonly chartFluxoTooltip: ApexTooltip = {
+    theme: 'dark',
+    shared: true,
+    intersect: false,
+    y: {
+      formatter: (val: number) => {
+        if (val === undefined || val === null || isNaN(val)) return 'R$ 0,00';
+        return `R$ ${Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      },
+    },
+  };
 
   // --- TAB 2: DONUT / ROSCA CHART CONFIG ---
   public readonly chartDonutConfig: ApexChart = {
@@ -893,7 +1058,7 @@ export class RelatoriosPage {
             color: '#C9A74E',
             formatter: () => {
               const total = this.store.fluxoCaixa()?.totalDespesas || 0;
-              return `R$ ${total.toLocaleString('pt-BR')}`;
+              return `R$ ${Number(total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             },
           },
         },
@@ -943,7 +1108,10 @@ export class RelatoriosPage {
   public readonly chartCartoesYAxis: ApexYAxis = {
     labels: {
       style: { colors: 'rgba(255, 255, 255, 0.6)', fontSize: '11px' },
-      formatter: (val) => `R$ ${val.toLocaleString('pt-BR')}`,
+      formatter: (val) => {
+        if (val === undefined || val === null || isNaN(val)) return 'R$ 0';
+        return `R$ ${Math.round(val).toLocaleString('pt-BR')}`;
+      },
     },
   };
 
@@ -998,7 +1166,10 @@ export class RelatoriosPage {
     max: 100,
     labels: {
       style: { colors: 'rgba(255, 255, 255, 0.6)', fontSize: '11px' },
-      formatter: (val) => `${val}%`,
+      formatter: (val) => {
+        if (val === undefined || val === null || isNaN(val)) return '0%';
+        return `${Math.round(val)}%`;
+      },
     },
   };
 
