@@ -1,9 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
 import { UserContextService } from '../../../core/services/user-context.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { WorkspaceService } from '../../../core/services/workspace.service';
 import { AuthStore } from '../../../features/auth/store/auth.store';
 import { CarteirasStore } from '../../../features/carteiras/store/carteiras.store';
+import { FluxoCaixaStore } from '../../../features/lancamentos/store/fluxo-caixa.store';
+import { DashboardStore } from '../../../features/dashboard/store/dashboard.store';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { HapticsService } from '../../../core/platform/haptics.service';
@@ -66,6 +70,47 @@ import { HapticsService } from '../../../core/platform/haptics.service';
             </div>
             <span class="material-symbols-rounded arrow">chevron_right</span>
           </div>
+        </div>
+
+        <div class="menu-group">
+          <span class="group-title">GERENCIAMENTO DE DADOS</span>
+
+          @if (!confirmandoReset()) {
+            <div class="menu-item warning" (click)="confirmandoReset.set(true)">
+              <div class="item-icon reset-icon">
+                <span class="material-symbols-rounded">restart_alt</span>
+              </div>
+              <div class="item-text">
+                <span class="item-title warning-text">Zerar Dados do Workspace</span>
+                <span class="item-sub">Limpar todos os saldos e lançamentos</span>
+              </div>
+              <span class="material-symbols-rounded arrow warning-text">chevron_right</span>
+            </div>
+          } @else {
+            <div class="reset-confirm-box">
+              <div class="confirm-header">
+                <span class="material-symbols-rounded warning-icon">warning</span>
+                <h4>Zerar todos os dados?</h4>
+              </div>
+              <p class="confirm-desc">
+                Esta ação é <strong>irreversível</strong>. Todos os lançamentos, despesas, receitas, metas, projetos e saldos deste workspace serão apagados, retornando-o ao estado zerado (R$ 0,00).
+              </p>
+              <div class="confirm-actions">
+                <button class="btn-cancel" [disabled]="resetando()" (click)="confirmandoReset.set(false)">
+                  Cancelar
+                </button>
+                <button class="btn-danger" [disabled]="resetando()" (click)="executarReset()">
+                  @if (resetando()) {
+                    <span class="material-symbols-rounded spin">progress_activity</span>
+                    Zerando...
+                  } @else {
+                    <span class="material-symbols-rounded">delete_forever</span>
+                    Sim, Zerar Tudo
+                  }
+                </button>
+              </div>
+            </div>
+          }
         </div>
 
         <div class="menu-group">
@@ -209,6 +254,15 @@ import { HapticsService } from '../../../core/platform/haptics.service';
         }
       }
 
+      &.warning {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.25);
+
+        &:hover {
+          background: rgba(245, 158, 11, 0.15);
+        }
+      }
+
       .item-icon {
         width: 36px;
         height: 36px;
@@ -222,6 +276,11 @@ import { HapticsService } from '../../../core/platform/haptics.service';
         &.logout-icon {
           background: rgba(198, 40, 40, 0.2);
           color: #ef5350;
+        }
+
+        &.reset-icon {
+          background: rgba(245, 158, 11, 0.2);
+          color: #f59e0b;
         }
       }
 
@@ -237,6 +296,7 @@ import { HapticsService } from '../../../core/platform/haptics.service';
         color: var(--color-text-primary);
 
         &.danger-text { color: #ef5350; }
+        &.warning-text { color: #f59e0b; }
       }
 
       .item-sub {
@@ -247,7 +307,107 @@ import { HapticsService } from '../../../core/platform/haptics.service';
       .arrow {
         color: var(--color-text-secondary);
         font-size: 20px;
+
+        &.warning-text { color: #f59e0b; }
       }
+    }
+
+    .reset-confirm-box {
+      background: rgba(161, 61, 99, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .confirm-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .warning-icon {
+        color: #ef4444;
+        font-size: 22px;
+      }
+
+      h4 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+    }
+
+    .confirm-desc {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+
+      strong {
+        color: #ef4444;
+      }
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--color-text-primary);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+
+    .btn-danger {
+      flex: 1.3;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: #dc2626;
+      border: 1px solid #ef4444;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s;
+
+      &:hover:not(:disabled) {
+        background: #b91c1c;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .spin {
+        animation: spin 1s linear infinite;
+        font-size: 18px;
+      }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   `],
 })
@@ -256,12 +416,50 @@ export class UserProfileComponent {
   readonly themeService = inject(ThemeService);
   readonly authStore = inject(AuthStore);
   readonly carteirasStore = inject(CarteirasStore);
+  readonly fluxoCaixaStore = inject(FluxoCaixaStore);
+  readonly dashboardStore = inject(DashboardStore);
+  private readonly workspaceService = inject(WorkspaceService);
   private readonly overlay = inject(OverlayService);
   private readonly toast = inject(ToastService);
   private readonly haptics = inject(HapticsService);
 
+  readonly confirmandoReset = signal<boolean>(false);
+  readonly resetando = signal<boolean>(false);
+
   fechar(): void {
     this.overlay.close();
+  }
+
+  async executarReset(): Promise<void> {
+    const ws = this.authStore.workspaceAtivo();
+    if (!ws?.id) {
+      this.toast.showError('Nenhum workspace ativo selecionado.');
+      return;
+    }
+
+    this.resetando.set(true);
+    await this.haptics.impactMedium();
+
+    try {
+      await firstValueFrom(this.workspaceService.resetarDadosWorkspace(ws.id));
+      this.toast.showSuccess('Dados do workspace zerados com sucesso!');
+
+      // Recarregar os dados das stores para sincronizar a tela imediatamente
+      await Promise.allSettled([
+        this.fluxoCaixaStore.carregarDados(),
+        this.carteirasStore.carregarCarteiras(),
+        this.dashboardStore.carregarDashboard(),
+      ]);
+
+      this.overlay.close();
+    } catch (err: any) {
+      this.toast.showError(
+        err?.error?.message || 'Erro ao zerar dados do workspace. Tente novamente.',
+      );
+    } finally {
+      this.resetando.set(false);
+      this.confirmandoReset.set(false);
+    }
   }
 
   async logout(): Promise<void> {
